@@ -30,4 +30,4 @@ jobs:
         with:
           python-version: '3.10'
       - run: pip install selenium
-      - run: cd src/__tests__/e2e && python ${{ inputs.test-name }}
+      - run: cd src/__tests__/e2e && python ${{ inputs.test }}
