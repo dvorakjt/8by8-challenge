@@ -9,7 +9,9 @@ class NextJSTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         """Set up the browser instance before all tests"""
-        cls.driver = webdriver.Chrome()
+        chrome_options = webdriver.ChromeOptions()
+        chrome_options.add_argument("--headless")
+        cls.driver = webdriver.Chrome(options=chrome_options)
         cls.driver.implicitly_wait(10)
         cls.host = os.environ.get("PREVIEW_URL") or "http://localhost:3000"
         preview_access_token = os.environ.get("ACCESS_TOKEN")
