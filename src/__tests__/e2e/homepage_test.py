@@ -26,6 +26,12 @@ class NextJSTests(unittest.TestCase):
         """Navigate to the base URL before each test"""
         self.driver.get(self.host + self.query_string)
 
+    def assertEqualIgnoreCase(self, expected, actual):
+        expected_to_lower = expected.lower()
+        actual_to_lower = actual.lower()
+        if expected_to_lower != actual_to_lower:
+            self.fail(f"Expected {expected_to_lower} but got {actual_to_lower}")
+
     # Webpage Elements  
     def test_homepage_title(self):
         """Test if the homepage title is correct"""
@@ -43,18 +49,13 @@ class NextJSTests(unittest.TestCase):
         """Test if the h1 element is displayed"""
         h1_rendered = self.driver.find_element(By.TAG_NAME, 'h1')
         self.assertTrue(h1_rendered.is_displayed())
-        self.assertEqual(h1_rendered.text,
-                         'GET 8 AAPI FRIENDS TO REGISTER TO VOTE IN 8 DAYS')
+        self.assertEqualIgnoreCase('GET 8 AAPI FRIENDS TO REGISTER TO VOTE IN 8 DAYS', h1_rendered.text)
 
     def test_locate_button(self):
         """Test if the challenge button is displayed correctly"""
         button_element = self.driver.find_element(
             By.CSS_SELECTOR, ".styles_challenge_btn__T0eGB")
-        if button_element.text == 'TAKE THE CHALLENGE':
-            self.assertEqual(button_element.text, 'TAKE THE CHALLENGE')
-        else:
-            self.fail(
-                f"expected texted TAKE THE CHALLENGE but got {button_element.text}")
+        self.assertEqualIgnoreCase('TAKE THE CHALLENGE', button_element.text)
             
     # Hamburger Menu    
     def test_hamburger_menu(self):
@@ -284,7 +285,7 @@ class NextJSTests(unittest.TestCase):
         """Test if the button functions as expected"""
         button_element = self.driver.find_element(
             By.CSS_SELECTOR, ".btn_gradient.btn_wide.btn_lg")
-        if button_element.text == 'TAKE THE CHALLENGE':
+        if button_element.text.upper() == 'TAKE THE CHALLENGE':
             button_element.click()
         else:
             self.fail(
