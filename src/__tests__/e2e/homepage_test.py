@@ -90,7 +90,7 @@ class HomePageTests(unittest.TestCase):
           "FAQs",
           "Privacy Policy",
           "Settings",
-          "Sign up"
+          "Sign up",
         )
 
         self.assertEqual(len(text_of_expected_menu_items), len(menu_items))
