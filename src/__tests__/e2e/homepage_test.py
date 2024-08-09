@@ -102,7 +102,7 @@ class HomePageTests(unittest.TestCase):
                 self.assertEqual(len(text_of_expected_menu_items), len(menu_items))
 
                 for i, expected_item_text in enumerate(text_of_expected_menu_items):
-                  self.assertEqualIgnoreCase(expected_item_text, menu_items[i].get_property('innerText'))
+                    self.assertEqualIgnoreCase(expected_item_text, menu_items[i].get_property('innerText'))
 
         if not detected_hamburger_menu_ul:
             self.fail('Could not find element with class "styles_hamburger_menu_items__8yFBG"')
