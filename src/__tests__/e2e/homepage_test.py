@@ -1,11 +1,11 @@
-"""Runs Selenium tests agains the homepage."""
+"""Runs Selenium tests against the homepage."""
 import unittest
 import os
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.action_chains import ActionChains
 
-class NextJSTests(unittest.TestCase):
+class HomePageTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         """Set up the browser instance before all tests"""
@@ -69,24 +69,30 @@ class NextJSTests(unittest.TestCase):
             self.fail('Hamburger Menu Tests have failed!')
     
         inner_menu = self.driver.find_element(By.CLASS_NAME, 'styles_inner_container__0JSHj').is_displayed()
-        if inner_menu:
-            return None
-        else:
+        if not inner_menu:
             self.fail('Inner Menu is not displayed!')  
 
      
-    def test_content_list(self):
-        """Test if the hambuger menu shows some menu content"""
-        content_list = self.driver.find_elements(By.TAG_NAME, 'ul')
-        for i in range(len(content_list)):
-            if content_list[i].get_attribute("class") == 'styles_hamburger_menu_items__8yFBG':
-                content = self.driver.find_element(By.TAG_NAME, 'li').is_displayed()
-                if content:
-                    test_button = self.driver.find_element(By.TAG_NAME, 'button')
-                    click_action = ActionChains(self.driver)
-                    click_action.move_to_element(test_button).click().perform()
-            else:
-                self.fail('TAG_NAME not found!')
+    def test_hambuerger_menu_items(self):
+        """Test if the hambuger menu contains expected items."""
+        unordered_lists = self.driver.find_elements(By.TAG_NAME, 'ul')
+        for ul in enumerate(unordered_lists):
+            if ul.get_attribute("class") == 'styles_hamburger_menu_items__8yFBG':
+                menu_items = ul.find_elements(By.TAG_NAME, 'li')
+                expected_menu_items = (
+                  "",
+                  "Hi there!", 
+                  "Take the challenge", 
+                  "Take action", 
+                  "Why 8by8",
+                  "Rewards",
+                  "FAQs",
+                  "Privacy Policy",
+                  "Settings",
+                  "Sign up"
+                )
+                for i, expected_item in enumerate(expected_menu_items):
+                  self.assertEqualIgnoreCase(expected_item, menu_items[i].text)
                     
     # SECTION_01
     def test_section_1_render(self):
@@ -172,7 +178,6 @@ class NextJSTests(unittest.TestCase):
             self.fail(
                 f"Expected class 'styles_section_4__h94nS', but got '{section_class}'")
     
-
     # SECTION_05    
     def test_section_5_render(self):
         """Test if Section 5 is rendered """
@@ -235,16 +240,16 @@ class NextJSTests(unittest.TestCase):
 
     def test_section_6_divs(self):
         """Test if all the divs are displaying correct content"""
-        div_content = self.driver.find_elements(By.TAG_NAME, 'div')
-        for i in range(len(div_content)):
-            div_class = div_content[i].get_attribute("class")
+        div_elements = self.driver.find_elements(By.TAG_NAME, 'div')
+        for div in enumerate(div_elements):
+            div_class = div.get_attribute("class")
             if div_class == "styles_stat_percentage_container_1__E4Hep":
-                div_text = div_content[i].text
+                div_text = div.text
                 self.assertEqual(div_text, "60%")
             elif div_class == "styles_stat_percentage_container_2__yCM_4":
-                self.assertEqual(div_content[i].text, "7%")
+                self.assertEqual(div.text, "7%")
             elif div_class == "styles_stat_percentage_container_3__sUpCi":
-                self.assertEqual(div_content[i].text, "3%")
+                self.assertEqual(div.text, "3%")
             else:
                 pass
 
