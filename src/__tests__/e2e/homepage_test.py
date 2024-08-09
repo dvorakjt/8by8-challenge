@@ -73,7 +73,7 @@ class HomePageTests(unittest.TestCase):
             self.fail('Inner Menu is not displayed!')  
 
      
-    def test_hambuerger_menu_items(self):
+    def test_hamburger_menu_items(self):
         """Test if the hambuger menu contains expected items."""
         unordered_lists = self.driver.find_elements(By.TAG_NAME, 'ul')
         for ul in enumerate(unordered_lists):
