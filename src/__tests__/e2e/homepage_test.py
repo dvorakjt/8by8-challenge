@@ -75,37 +75,28 @@ class HomePageTests(unittest.TestCase):
      
     def test_hamburger_menu_items(self):
         """Test if the hambuger menu contains expected items."""
-        unordered_lists = self.driver.find_elements(By.TAG_NAME, 'ul')
+        hamburger_menu_ul = self.driver.find_element(By.CLASS_NAME, 'styles_hamburger_menu_items__8yFBG')
 
-        detected_hamburger_menu_ul = False
+        greeting = hamburger_menu_ul.find_element(By.TAG_NAME, 'h2')
+        self.assertEqualIgnoreCase('Hi there!', greeting.get_property('innerText'))
 
-        for i, ul in enumerate(unordered_lists):
-            if ul.get_attribute("class") == 'styles_hamburger_menu_items__8yFBG':
-                detected_hamburger_menu_ul = True
+        menu_items = hamburger_menu_ul.find_elements(By.TAG_NAME, 'li')
+        text_of_expected_menu_items = (
+          "",
+          "Take the challenge", 
+          "Take action", 
+          "Why 8by8",
+          "Rewards",
+          "FAQs",
+          "Privacy Policy",
+          "Settings",
+          "Sign up"
+        )
 
-                greeting = ul.find_element(By.TAG_NAME, 'h2')
-                self.assertEqualIgnoreCase('Hi there!', greeting.get_property('innerText'))
+        self.assertEqual(len(text_of_expected_menu_items), len(menu_items))
 
-                menu_items = ul.find_elements(By.TAG_NAME, 'li')
-                text_of_expected_menu_items = (
-                  "",
-                  "Take the challenge", 
-                  "Take action", 
-                  "Why 8by8",
-                  "Rewards",
-                  "FAQs",
-                  "Privacy Policy",
-                  "Settings",
-                  "Sign up"
-                )
-
-                self.assertEqual(len(text_of_expected_menu_items), len(menu_items))
-
-                for i, expected_item_text in enumerate(text_of_expected_menu_items):
-                    self.assertEqualIgnoreCase(expected_item_text, menu_items[i].get_property('innerText'))
-
-        if not detected_hamburger_menu_ul:
-            self.fail('Could not find element with class "styles_hamburger_menu_items__8yFBG"')
+        for i, expected_item_text in enumerate(text_of_expected_menu_items):
+            self.assertEqualIgnoreCase(expected_item_text, menu_items[i].get_property('innerText'))
                     
     # SECTION_01
     def test_section_1_render(self):
