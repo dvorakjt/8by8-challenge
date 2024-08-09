@@ -76,12 +76,19 @@ class HomePageTests(unittest.TestCase):
     def test_hamburger_menu_items(self):
         """Test if the hambuger menu contains expected items."""
         unordered_lists = self.driver.find_elements(By.TAG_NAME, 'ul')
-        for ul in enumerate(unordered_lists):
+
+        detected_hamburger_menu_ul = False
+
+        for i, ul in enumerate(unordered_lists):
             if ul.get_attribute("class") == 'styles_hamburger_menu_items__8yFBG':
+                detected_hamburger_menu_ul = True
+
+                greeting = ul.find_element(By.TAG_NAME, 'h2')
+                self.assertEqualIgnoreCase('Hi there!', greeting.get_property('innerText'))
+
                 menu_items = ul.find_elements(By.TAG_NAME, 'li')
-                expected_menu_items = (
+                text_of_expected_menu_items = (
                   "",
-                  "Hi there!", 
                   "Take the challenge", 
                   "Take action", 
                   "Why 8by8",
@@ -91,8 +98,14 @@ class HomePageTests(unittest.TestCase):
                   "Settings",
                   "Sign up"
                 )
-                for i, expected_item in enumerate(expected_menu_items):
-                  self.assertEqualIgnoreCase(expected_item, menu_items[i].text)
+
+                self.assertEqual(len(text_of_expected_menu_items), len(menu_items))
+
+                for i, expected_item_text in enumerate(text_of_expected_menu_items):
+                  self.assertEqualIgnoreCase(expected_item_text, menu_items[i].get_property('innerText'))
+
+        if not detected_hamburger_menu_ul:
+            self.fail('Could not find element with class "styles_hamburger_menu_items__8yFBG"')
                     
     # SECTION_01
     def test_section_1_render(self):
@@ -241,7 +254,7 @@ class HomePageTests(unittest.TestCase):
     def test_section_6_divs(self):
         """Test if all the divs are displaying correct content"""
         div_elements = self.driver.find_elements(By.TAG_NAME, 'div')
-        for div in enumerate(div_elements):
+        for div in div_elements:
             div_class = div.get_attribute("class")
             if div_class == "styles_stat_percentage_container_1__E4Hep":
                 div_text = div.text
@@ -250,8 +263,6 @@ class HomePageTests(unittest.TestCase):
                 self.assertEqual(div.text, "7%")
             elif div_class == "styles_stat_percentage_container_3__sUpCi":
                 self.assertEqual(div.text, "3%")
-            else:
-                pass
 
     def test_div_content(self):
         """Test if the images in the div is getting displayed"""
