@@ -8,6 +8,8 @@ import {
   UserContext,
 } from './user-context';
 import { clearInviteCode } from './clear-invite-code-cookie';
+import { clearAllPersistentFormElements, ValueOf } from 'fully-formed';
+import { VoterRegistrationForm } from '@/app/register/voter-registration-form';
 import type { User } from '@/model/types/user';
 import type { InvitedBy } from '@/model/types/invited-by';
 
@@ -130,11 +132,23 @@ export function ClientSideUserContextProvider(
 
     setUser(null);
     setInvitedBy(null);
+    clearAllPersistentFormElements();
   }
 
   /* istanbul ignore next */
   async function restartChallenge() {
     throw new Error('not implemented.');
+  }
+
+  /* istanbul ignore next */
+  async function registerToVote(
+    formData: ValueOf<InstanceType<typeof VoterRegistrationForm>>,
+  ): Promise<void> {
+    return new Promise<void>((_resolve, reject) => {
+      setTimeout(() => {
+        reject(new Error('not implemented.'));
+      }, 3000);
+    });
   }
 
   return (
@@ -150,6 +164,7 @@ export function ClientSideUserContextProvider(
         gotElectionReminders,
         signOut,
         restartChallenge,
+        registerToVote,
       }}
     >
       {props.children}

@@ -9,6 +9,8 @@ import type { IUserRecordParser } from './user-record-parser/i-user-record-parse
 import type { Encryptor } from './encryptor/encryptor';
 import type { VoterRegistrationDataRepository } from './voter-registration-data-repository/voter-registration-data-repository';
 import type { CreateSupabaseClient } from './create-supabase-client/create-supabase-client';
+import type { USStateInformation } from './us-state-information/us-state-information';
+import type { ValidateAddresses } from './validate-addresses/validate-addresses';
 import type { InvitationsRepository } from './invitations-repository/invitations-repository';
 
 const { keys } = Keys.createKeys()
@@ -38,6 +40,10 @@ const { keys } = Keys.createKeys()
   .forType<UserRepository>()
   .addKey('Encryptor')
   .forType<Encryptor>()
+  .addKey('USStateInformation')
+  .forType<USStateInformation>()
+  .addKey('validateAddresses')
+  .forType<ValidateAddresses>()
   .addKey('setInviteCodeCookie')
   .forType<NextMiddleware>()
   .addKey('InvitationsRepository')

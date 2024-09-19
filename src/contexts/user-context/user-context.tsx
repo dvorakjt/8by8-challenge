@@ -1,7 +1,9 @@
 'use client';
 import { createNamedContext } from '../../hooks/create-named-context';
+import { VoterRegistrationForm } from '@/app/register/voter-registration-form';
 import type { User } from '../../model/types/user';
 import type { Avatar } from '@/model/types/avatar';
+import type { ValueOf } from 'fully-formed';
 import type { InvitedBy } from '@/model/types/invited-by';
 
 interface SignUpWithEmailParams {
@@ -30,6 +32,9 @@ interface UserContextType {
   signInWithOTP(params: SignInWithOTPParams): Promise<void>;
   signOut(): Promise<void>;
   restartChallenge(): Promise<void>;
+  registerToVote(
+    formData: ValueOf<InstanceType<typeof VoterRegistrationForm>>,
+  ): Promise<void>;
   gotElectionReminders(): Promise<void>;
 }
 
