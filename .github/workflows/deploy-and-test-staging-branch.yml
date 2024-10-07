@@ -8,10 +8,11 @@ on:
 jobs:
   reset-db:
     runs-on: ubuntu-latest
+    environment: staging
     env:
       SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
-      SUPABASE_DB_PASSWORD: ${{ secrets.STAGING_SUPABASE_DB_PASSWORD }}
-      SUPABASE_PROJECT_ID: ${{ secrets.STAGING_SUPABASE_PROJECT_ID }}
+      SUPABASE_DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
+      SUPABASE_PROJECT_ID: ${{ vars.SUPABASE_PROJECT_ID }}
 
     steps:
       - uses: actions/checkout@v4
@@ -27,14 +28,22 @@ jobs:
     needs: reset-db
     outputs:
       preview-url: ${{ steps.deploy.outputs.preview-url }}
+    environment: staging
     env:
       VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
       VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
       VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+      NEXT_PUBLIC_TURNSTILE_SITE_KEY: ${{ vars.TURNSTILE_SITE_KEY }}
+      NEXT_PUBLIC_SUPABASE_URL: ${{ vars.SUPABASE_URL }}
+      NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ vars.SUPABASE_ANON_KEY }}
+      TURNSTILE_SECRET_KEY: ${{ secrets.TURNSTILE_SECRET_KEY }}
+      SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+      VOTER_REGISTRATION_REPO_ENCRYPTION_KEY: ${{ secrets.VOTER_REGISTRATION_REPO_ENCRYPTION_KEY }}
+      GOOGLE_MAPS_API_KEY: ${{ secrets.GOOGLE_MAPS_API_KEY }}
+      CRYPTO_KEY_COOKIES: ${{ secrets.CRYPTO_KEY_COOKIES }}
     steps:
       - uses: actions/checkout@v4
       - run: npm install --global vercel@canary
-      - run: vercel pull --yes --environment=preview --token=$VERCEL_TOKEN
       - run: vercel build --token=$VERCEL_TOKEN
       - id: deploy
         run: echo "preview-url=$(vercel deploy --prebuilt --token=$VERCEL_TOKEN)" >> $GITHUB_OUTPUT
