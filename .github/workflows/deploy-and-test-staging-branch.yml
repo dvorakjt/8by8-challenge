@@ -44,6 +44,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - run: npm install --global vercel@canary
+      - run: vercel pull --yes --environment=preview --token=$VERCEL_TOKEN
       - run: vercel build --token=$VERCEL_TOKEN
       - id: deploy
         run: echo "preview-url=$(vercel deploy --prebuilt --token=$VERCEL_TOKEN)" >> $GITHUB_OUTPUT
