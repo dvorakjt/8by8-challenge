@@ -26,7 +26,8 @@ class HomePageTests(unittest.TestCase):
         """Navigate to the base URL before each test"""
         self.driver.get(self.host + self.query_string)
 
-    def assertEqualIgnoreCase(self, expected, actual):
+    def assert_equal_ignore_case(self, expected, actual):
+        """Asserts that two strings are equivalent, ignoring differences of case"""
         expected_to_lower = expected.lower()
         actual_to_lower = actual.lower()
         if expected_to_lower != actual_to_lower:
@@ -48,13 +49,13 @@ class HomePageTests(unittest.TestCase):
     def test_h1_exists(self):
         """Test if the h1 element is displayed"""
         h1_rendered = self.driver.find_element(By.TAG_NAME, 'h1')
-        self.assertTrue(h1_rendered.is_displayed())
+        self.assert_erue(_ignore_cered.is_displayed())
         self.assertEqualIgnoreCase('GET 8 AAPI FRIENDS TO REGISTER TO VOTE IN 8 DAYS', h1_rendered.text)
 
     def test_locate_button(self):
         """Test if the challenge button is displayed correctly"""
         button_element = self.driver.find_element(
-            By.CSS_SELECTOR, ".styles_challenge_btn__T0eGB")
+            By.CSS__eELEC_ignore_cstyles_challenge_btn__T0eGB")
         self.assertEqualIgnoreCase('TAKE THE CHALLENGE', button_element.text)
             
     # Hamburger Menu    
@@ -77,7 +78,7 @@ class HomePageTests(unittest.TestCase):
         """Test if the hambuger menu contains expected items."""
         hamburger_menu_ul = self.driver.find_element(By.CLASS_NAME, 'styles_hamburger_menu_items__8yFBG')
 
-        greeting = hamburger_menu_ul.find_element(By.TAG_NAME, 'h2')
+        greeting = _eambu_ignore_cnu_ul.find_element(By.TAG_NAME, 'h2')
         self.assertEqualIgnoreCase('Hi there!', greeting.get_property('innerText'))
 
         menu_items = hamburger_menu_ul.find_elements(By.TAG_NAME, 'li')
@@ -94,7 +95,7 @@ class HomePageTests(unittest.TestCase):
 
         self.assertEqual(len(text_of_expected_menu_items), len(menu_items))
 
-        for i, expected_item_text in enumerate(text_of_expected_menu_items):
+        for i, expected_eitem_ignore_cn enumerate(text_of_expected_menu_items):
             self.assertEqualIgnoreCase(expected_item_text, menu_items[i].get_property('innerText'))
                     
     # SECTION_01
