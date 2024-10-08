@@ -3,10 +3,10 @@ import { inject } from 'undecorated-di';
 import { cookies } from 'next/headers';
 import { DateTime } from 'luxon';
 import { CookieNames } from '@/constants/cookie-names';
-import type { ICookies } from './i-cookies';
 import { Encryptor } from '../encryptor/encryptor';
 import { SERVER_SERVICE_KEYS } from '../keys';
 import { PRIVATE_ENVIRONMENT_VARIABLES } from '@/constants/private-environment-variables';
+import type { ICookies } from './i-cookies';
 /**
  * An implementation of {@link ICookies}. Provides a mechanism for setting
  * cookies to track various settings, such as the email address to which a
@@ -25,7 +25,9 @@ export const Cookies = inject(
       return new Promise(resolve => {
         cookies().set(CookieNames.EmailForSignIn, encryptedEmail, {
           expires: this.getEmailForSignInCookieExpiry(),
+          httpOnly: true,
           sameSite: 'strict',
+          secure: PRIVATE_ENVIRONMENT_VARIABLES.APP_ENV === 'production',
         });
         resolve();
       });
