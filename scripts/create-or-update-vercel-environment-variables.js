@@ -1,3 +1,5 @@
+createOrUpdateEnvironmentVariables();
+
 async function createOrUpdateEnvironmentVariables() {
   const environment = process.argv[2];
 
@@ -42,7 +44,7 @@ async function createOrUpdateEnvironmentVariable(
   environment,
   sensitive,
 ) {
-  await fetch(
+  const response = await fetch(
     `https://api.vercel.com/v10/projects/${process.env.VERCEL_PROJECT_ID}/env?upsert=true`,
     {
       body: {
@@ -57,4 +59,8 @@ async function createOrUpdateEnvironmentVariable(
       method: 'POST',
     },
   );
+
+  if (!response.ok) {
+    console.log(response);
+  }
 }
