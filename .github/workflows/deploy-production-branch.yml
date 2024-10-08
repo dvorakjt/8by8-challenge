@@ -1,4 +1,4 @@
-name: 'Deploy and Test Production Branch'
+name: 'Deploy Production Branch'
 
 on:
   push:
@@ -45,4 +45,5 @@ jobs:
           echo "GOOGLE_MAPS_API_KEY=${{ secrets.GOOGLE_MAPS_API_KEY }}" >> $GITHUB_ENV
           echo "CRYPTO_KEY_COOKIES=${{ secrets.CRYPTO_KEY_COOKIES }}" >> $GITHUB_ENV
       - run: vercel build --token=$VERCEL_TOKEN
-      - run: vercel deploy --prebuilt --prod --token=$VERCEL_TOKEN)
+      - run: node scripts/create-or-update-vercel-environment-variables.js production
+      - run: vercel deploy --prebuilt --prod --token=$VERCEL_TOKEN
