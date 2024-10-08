@@ -38,14 +38,14 @@ jobs:
       - run: npm install --global vercel@canary
       - run: vercel pull --yes --environment=preview --token=$VERCEL_TOKEN
       - run: |
-        echo "NEXT_PUBLIC_TURNSTILE_SITE_KEY=${{ vars.TURNSTILE_SITE_KEY }}" >> $GITHUB_ENV
-        echo "NEXT_PUBLIC_SUPABASE_URL=${{ vars.SUPABASE_URL }}" >> $GITHUB_ENV
-        echo "NEXT_PUBLIC_SUPABASE_ANON_KEY=${{ vars.SUPABASE_ANON_KEY }}" >> $GITHUB_ENV
-        echo "TURNSTILE_SECRET_KEY=${{ secrets.TURNSTILE_SECRET_KEY }}" >> $GITHUB_ENV
-        echo "SUPABASE_SERVICE_ROLE_KEY=${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}" >> $GITHUB_ENV
-        echo "VOTER_REGISTRATION_REPO_ENCRYPTION_KEY=${{ secrets.VOTER_REGISTRATION_REPO_ENCRYPTION_KEY }}" >> $GITHUB_ENV
-        echo "GOOGLE_MAPS_API_KEY=${{ secrets.GOOGLE_MAPS_API_KEY }}" >> $GITHUB_ENV
-        echo "CRYPTO_KEY_COOKIES=${{ secrets.CRYPTO_KEY_COOKIES }}" >> $GITHUB_ENV
+          echo "NEXT_PUBLIC_TURNSTILE_SITE_KEY=${{ vars.TURNSTILE_SITE_KEY }}" >> $GITHUB_ENV
+          echo "NEXT_PUBLIC_SUPABASE_URL=${{ vars.SUPABASE_URL }}" >> $GITHUB_ENV
+          echo "NEXT_PUBLIC_SUPABASE_ANON_KEY=${{ vars.SUPABASE_ANON_KEY }}" >> $GITHUB_ENV
+          echo "TURNSTILE_SECRET_KEY=${{ secrets.TURNSTILE_SECRET_KEY }}" >> $GITHUB_ENV
+          echo "SUPABASE_SERVICE_ROLE_KEY=${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}" >> $GITHUB_ENV
+          echo "VOTER_REGISTRATION_REPO_ENCRYPTION_KEY=${{ secrets.VOTER_REGISTRATION_REPO_ENCRYPTION_KEY }}" >> $GITHUB_ENV
+          echo "GOOGLE_MAPS_API_KEY=${{ secrets.GOOGLE_MAPS_API_KEY }}" >> $GITHUB_ENV
+          echo "CRYPTO_KEY_COOKIES=${{ secrets.CRYPTO_KEY_COOKIES }}" >> $GITHUB_ENV
       - run: vercel build --token=$VERCEL_TOKEN
       - id: deploy
         run: echo "preview-url=$(vercel deploy --prebuilt --token=$VERCEL_TOKEN)" >> $GITHUB_OUTPUT
