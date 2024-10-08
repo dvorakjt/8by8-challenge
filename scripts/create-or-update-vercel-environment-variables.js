@@ -47,12 +47,12 @@ async function createOrUpdateEnvironmentVariable(
   const response = await fetch(
     `https://api.vercel.com/v10/projects/${process.env.VERCEL_PROJECT_ID}/env?upsert=true`,
     {
-      body: {
+      body: JSON.stringify({
         key,
         value,
         type: sensitive ? 'sensitive' : 'plain',
         target: [environment],
-      },
+      }),
       headers: {
         Authorization: `Bearer ${process.env.VERCEL_TOKEN}`,
       },
