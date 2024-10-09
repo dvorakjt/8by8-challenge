@@ -1,3 +1,4 @@
 export interface RateLimiter {
-  limit(identifier: string): Promise<{ success: boolean }>;
+  consumePoint(indentifier: string): Promise<number>;
+  getRemainingPoints(identifier: string): Promise<number>;
 }

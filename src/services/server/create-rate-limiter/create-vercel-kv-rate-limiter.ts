@@ -15,7 +15,16 @@ export const createVercelKVRateLimiter = bind(
       ),
     });
 
-    return rateLimiter;
+    return {
+      consumePoint: async (identifier: string) => {
+        const { remaining } = await rateLimiter.limit(identifier);
+        return remaining;
+      },
+      getRemainingPoints: async (identifier: string) => {
+        const { remaining } = await rateLimiter.getRemaining(identifier);
+        return remaining;
+      },
+    };
   },
   [],
 );

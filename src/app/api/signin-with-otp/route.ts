@@ -5,7 +5,21 @@ import { serverContainer } from '@/services/server/container';
 import { SERVER_SERVICE_KEYS } from '@/services/server/keys';
 import { ServerError } from '@/errors/server-error';
 
+const rateLimiter = serverContainer.get(SERVER_SERVICE_KEYS.createRateLimiter)({
+  route: '/signin-with-otp',
+  allowedRequests: 10,
+  duration: 1,
+  durationUnit: 'd',
+});
+
 export async function POST(request: NextRequest) {
+  const ip = request.ip ?? '127.0.0.1';
+  const remainingPoints = await rateLimiter.getRemainingPoints(ip);
+
+  if (remainingPoints <= 0) {
+    return NextResponse.json({ error: 'Too many requests.' }, { status: 429 });
+  }
+
   const auth = serverContainer.get(SERVER_SERVICE_KEYS.Auth);
   const cookies = serverContainer.get(SERVER_SERVICE_KEYS.Cookies);
 
@@ -18,6 +32,8 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(session, { status: 200 });
   } catch (e) {
     if (e instanceof ServerError) {
+      // Here we will consume a point since authentication failed
+      await rateLimiter.consumePoint(ip);
       return NextResponse.json({ error: e.message }, { status: e.statusCode });
     }
 
