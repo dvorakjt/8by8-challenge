@@ -4,8 +4,11 @@ import { requestBodySchema } from './request-body-schema';
 import { serverContainer } from '@/services/server/container';
 import { SERVER_SERVICE_KEYS } from '@/services/server/keys';
 import { ServerError } from '@/errors/server-error';
+import { ZodError } from 'zod';
 
-const rateLimiter = serverContainer.get(SERVER_SERVICE_KEYS.createRateLimiter)({
+export const rateLimiter = serverContainer.get(
+  SERVER_SERVICE_KEYS.createRateLimiter,
+)({
   route: '/signin-with-otp',
   allowedRequests: 10,
   duration: 1,
@@ -13,6 +16,7 @@ const rateLimiter = serverContainer.get(SERVER_SERVICE_KEYS.createRateLimiter)({
 });
 
 export async function POST(request: NextRequest) {
+  /* istanbul ignore next */
   const ip = request.ip ?? '127.0.0.1';
   const remainingPoints = await rateLimiter.getRemainingPoints(ip);
 
@@ -35,8 +39,13 @@ export async function POST(request: NextRequest) {
       // Here we will consume a point since authentication failed
       await rateLimiter.consumePoint(ip);
       return NextResponse.json({ error: e.message }, { status: e.statusCode });
+    } else if (e instanceof ZodError) {
+      return NextResponse.json({ error: 'Bad data.' }, { status: 400 });
     }
 
-    return NextResponse.json({ error: 'Bad data.' }, { status: 400 });
+    return NextResponse.json(
+      { error: 'An unknown error occurred.' },
+      { status: 500 },
+    );
   }
 }

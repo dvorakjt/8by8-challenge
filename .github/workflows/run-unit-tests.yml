@@ -16,6 +16,8 @@ jobs:
       GOOGLE_MAPS_API_KEY: ''
       VOTER_REGISTRATION_REPO_ENCRYPTION_KEY: 'DvViBWSQfwFGSetPOVbIWZrMXYJh4wTVSE/+1QI/VTI='
       CRYPTO_KEY_COOKIES: 'V8/+Dd0HQ2RLKur/oeFel2uLDSi7B1gXp6TjQVp8iOk='
+      KV_REST_API_URL="http://localhost:8079"
+      KV_REST_API_TOKEN="kv_token"
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -26,4 +28,6 @@ jobs:
           version: latest
       - run: npm ci
       - run: npm run supabase-test:start
+      # Here we can run kv:start because supabase/setup-cli@v1 will set up Docker
+      - run: npm run kv:start
       - run: npm run test:ci

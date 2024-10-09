@@ -1,10 +1,11 @@
-import { RateLimiter } from './rate-limiter';
+import type { RateLimiter } from './rate-limiter';
+import type { DurationUnit } from './duration-unit';
 
 export interface CreateRateLimiterParams {
   route: string;
   allowedRequests: number;
   duration: number;
-  durationUnit: 'ms' | 's' | 'm' | 'h' | 'd';
+  durationUnit: DurationUnit;
 }
 
 export interface CreateRateLimiter {
