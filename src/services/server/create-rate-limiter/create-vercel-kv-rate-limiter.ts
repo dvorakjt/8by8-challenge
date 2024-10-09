@@ -1,3 +1,4 @@
+import 'server-only';
 import { bind } from 'undecorated-di';
 import { Ratelimit } from '@upstash/ratelimit';
 import { kv } from '@vercel/kv';

@@ -1,4 +1,5 @@
 import { middleware, config } from '@/middleware';
+import { rateLimiters } from '@/middlewares/rate-limit';
 import { SIGNED_IN_ONLY_ROUTES } from '@/middlewares/is-signed-in';
 import { SIGNED_OUT_ONLY_ROUTES } from '@/middlewares/is-signed-out';
 import { getSignedInRequest } from '@/utils/test/get-signed-in-request';
@@ -21,7 +22,12 @@ jest.mock('next/headers', () => ({
 }));
 
 describe('middleware', () => {
+  const ip = '1.2.3.4';
   const host = 'https://challenge.8by8.us';
+
+  beforeEach(async () => {
+    await Promise.all(rateLimiters.map(limiter => limiter.resetPoints(ip)));
+  });
 
   afterEach(() => {
     mockCookies.cookies().clear();
@@ -32,6 +38,33 @@ describe('middleware', () => {
     jest.unmock('next/headers');
   });
 
+  it(`returns a response with a status of 429 if the user makes too many 
+  requests to a protected route.`, async () => {
+    for (const limiter of rateLimiters) {
+      for (let i = 0; i < limiter.allowedRequests; i++) {
+        const request = new NextRequest(`${host}${limiter.route}`, {
+          ip,
+        });
+
+        const response = await middleware(
+          request,
+          Builder<NextFetchEvent>().build(),
+        );
+        expect(response.status).not.toBe(429);
+      }
+
+      const request = new NextRequest(`${host}${limiter.route}`, {
+        ip,
+      });
+
+      const response = await middleware(
+        request,
+        Builder<NextFetchEvent>().build(),
+      );
+      expect(response.status).toBe(429);
+    }
+  });
+
   it(`sets a cookie and redirects the user to the same route without the 
     inviteCode search parameter when the inviteCode search parameter is detected.`, async () => {
     const route = '/share';
@@ -40,6 +73,7 @@ describe('middleware', () => {
 
     const request = new NextRequest(fullPath, {
       method: 'GET',
+      ip,
     });
 
     const response = await middleware(
@@ -60,6 +94,7 @@ describe('middleware', () => {
     for (const route of SIGNED_OUT_ONLY_ROUTES) {
       const request = await getSignedInRequest(host + route, {
         method: 'GET',
+        ip,
       });
 
       const response = await middleware(
@@ -82,6 +117,7 @@ describe('middleware', () => {
 
     const request = await getSignedInRequestWithUser(user, `${host}/signin`, {
       method: 'GET',
+      ip,
     });
 
     const response = await middleware(
@@ -103,6 +139,7 @@ describe('middleware', () => {
 
     const request = await getSignedInRequestWithUser(user, `${host}/signin`, {
       method: 'GET',
+      ip,
     });
 
     const response = await middleware(
@@ -123,6 +160,7 @@ describe('middleware', () => {
 
       const request = new NextRequest(host + route, {
         method: 'GET',
+        ip,
       });
 
       const response = await middleware(
@@ -137,6 +175,7 @@ describe('middleware', () => {
   it('redirects the user if they visit /playerwelcome without an inviteCode.', async () => {
     const request = new NextRequest(host + '/playerwelcome', {
       method: 'GET',
+      ip,
     });
 
     const response = await middleware(
@@ -153,6 +192,7 @@ describe('middleware', () => {
   inviteCode.`, async () => {
     const request = new NextRequest(host + '/playerwelcome', {
       method: 'GET',
+      ip,
     });
 
     mockCookies.cookies().set(CookieNames.InviteCode, createId());
@@ -168,6 +208,7 @@ describe('middleware', () => {
   it('redirects the user if they visit /challengerwelcome with an inviteCode.', async () => {
     const request = new NextRequest(host + '/challengerwelcome', {
       method: 'GET',
+      ip,
     });
 
     mockCookies.cookies().set(CookieNames.InviteCode, createId());
@@ -186,6 +227,7 @@ describe('middleware', () => {
   inviteCode.`, async () => {
     const request = new NextRequest(host + '/challengerwelcome', {
       method: 'GET',
+      ip,
     });
 
     const response = await middleware(
@@ -201,6 +243,7 @@ describe('middleware', () => {
     for (const route of SIGNED_IN_ONLY_ROUTES) {
       const request = new NextRequest(host + route, {
         method: 'GET',
+        ip,
       });
 
       const response = await middleware(
@@ -219,6 +262,7 @@ describe('middleware', () => {
     for (const route of SIGNED_IN_ONLY_ROUTES) {
       const request = await getSignedInRequest(host + route, {
         method: 'GET',
+        ip,
       });
       const response = await middleware(
         request,
@@ -234,6 +278,7 @@ describe('middleware', () => {
   passcode and the route can only be accessed if an OTP has been sent.`, async () => {
     const request = new NextRequest(`${host}/signin-with-otp`, {
       method: 'GET',
+      ip,
     });
 
     const response = await middleware(
@@ -259,6 +304,7 @@ describe('middleware', () => {
       host + '/register/eligibility',
       {
         method: 'GET',
+        ip,
       },
     );
 
@@ -285,6 +331,7 @@ describe('middleware', () => {
       host + '/register/eligibility',
       {
         method: 'GET',
+        ip,
       },
     );
 
@@ -309,6 +356,7 @@ describe('middleware', () => {
       host + '/register/completed',
       {
         method: 'GET',
+        ip,
       },
     );
 
@@ -335,6 +383,7 @@ describe('middleware', () => {
       host + '/reminders',
       {
         method: 'GET',
+        ip,
       },
     );
 
@@ -361,6 +410,7 @@ describe('middleware', () => {
       host + '/reminders',
       {
         method: 'GET',
+        ip,
       },
     );
 
@@ -380,6 +430,7 @@ describe('middleware', () => {
 
     const request = await getSignedInRequestWithUser(user, host + '/progress', {
       method: 'GET',
+      ip,
     });
 
     const response = await middleware(
@@ -400,6 +451,7 @@ describe('middleware', () => {
 
     const request = await getSignedInRequestWithUser(user, host + '/progress', {
       method: 'GET',
+      ip,
     });
 
     const response = await middleware(
@@ -418,6 +470,7 @@ describe('middleware', () => {
 
     const request = await getSignedInRequestWithUser(user, host + '/progress', {
       method: 'GET',
+      ip,
     });
 
     const response = await middleware(
@@ -436,6 +489,7 @@ describe('middleware', () => {
 
     const request = await getSignedInRequestWithUser(user, host + '/actions', {
       method: 'GET',
+      ip,
     });
 
     const response = await middleware(
@@ -456,6 +510,7 @@ describe('middleware', () => {
 
     const request = await getSignedInRequestWithUser(user, host + '/actions', {
       method: 'GET',
+      ip,
     });
 
     const response = await middleware(
@@ -474,6 +529,7 @@ describe('middleware', () => {
 
     const request = await getSignedInRequestWithUser(user, host + '/actions', {
       method: 'GET',
+      ip,
     });
 
     const response = await middleware(
@@ -490,6 +546,7 @@ describe('middleware', () => {
     for (const route of otherRoutes) {
       const request = new NextRequest(host + route, {
         method: 'GET',
+        ip,
       });
 
       const response = await middleware(

@@ -6,6 +6,7 @@ export { isChallengerOrHybrid } from './is-challenger-or-hybrid';
 export { isPlayerOrHybrid } from './is-player-or-hybrid';
 export { isSignedIn } from './is-signed-in';
 export { isSignedOut } from './is-signed-out';
+export { rateLimit } from './rate-limit';
 export { refreshSession } from './refresh-session';
 export { sentOTP } from './sent-otp';
 export { setInviteCodeCookie } from './set-invite-code-cookie';
