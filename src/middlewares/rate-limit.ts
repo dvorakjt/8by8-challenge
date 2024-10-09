@@ -10,6 +10,12 @@ const createRateLimiter = serverContainer.get(
 
 export const rateLimiters = [
   createRateLimiter({
+    route: '/api/signup-with-email',
+    allowedRequests: 10,
+    duration: 1,
+    durationUnit: 'd',
+  }),
+  createRateLimiter({
     route: '/api/send-otp-to-email',
     allowedRequests: 10,
     duration: 1,

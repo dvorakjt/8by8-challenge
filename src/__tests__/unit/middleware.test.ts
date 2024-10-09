@@ -14,6 +14,7 @@ import { CookieNames } from '@/constants/cookie-names';
 import { SupabaseUserRecordBuilder } from '@/utils/test/supabase-user-record-builder';
 import { UserType } from '@/model/enums/user-type';
 import { getSignedInRequestWithUser } from '@/utils/test/get-signed-in-request-with-user';
+
 const mockCookies = new MockNextCookies();
 
 jest.mock('next/headers', () => ({
