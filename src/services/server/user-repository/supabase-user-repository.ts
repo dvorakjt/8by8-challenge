@@ -19,12 +19,14 @@ export const SupabaseUserRepository = inject(
     private readonly REMOTE_PROCEDURES = {
       GET_USER_BY_ID: 'get_user_by_id',
       AWARD_ELECTION_REMINDERS_BADGE: 'award_election_reminders_badge',
+      AWARD_SHARED_CHALLENGE_BADGE: 'award_shared_challenge_badge',
       AWARD_REGISTER_TO_VOTE_BADGE: 'award_register_to_vote_badge',
       MAKE_HYBRID: 'make_hybrid',
     };
 
     constructor(
       private createSupabaseClient: CreateSupabaseClient,
+
       private userRecordParser: IUserRecordParser,
     ) {}
     async restartChallenge(userId: string): Promise<number> {
@@ -154,7 +156,37 @@ export const SupabaseUserRepository = inject(
         throw new ServerError('Failed to parse user data.', 400);
       }
     }
+    async awardSharedBadge(userId: string): Promise<User> {
+      const supabase = this.createSupabaseClient();
+
+      const {
+        data: dbUser,
+        error,
+        status,
+      } = await supabase.rpc(
+        this.REMOTE_PROCEDURES.AWARD_SHARED_CHALLENGE_BADGE,
+        {
+          user_id: userId,
+        },
+      );
+
+      if (error) {
+        throw new ServerError(error.message, status);
+      }
+
+      if (!dbUser) {
+        throw new ServerError('User was null after update.', 500);
+      }
+
+      try {
+        const user = this.userRecordParser.parseUserRecord(dbUser);
+        return user;
+      } catch (e) {
+        throw new ServerError('Failed to parse user data.', 400);
+      }
+    }
   },
+
   [
     SERVER_SERVICE_KEYS.createSupabaseServiceRoleClient,
     SERVER_SERVICE_KEYS.UserRecordParser,
