@@ -10,6 +10,7 @@ const createJestConfig = nextJest({
 const config = {
   testEnvironment: './jest-environment.js',
   setupFiles: ['jest-canvas-mock', './jest-setup.js'],
+  setupFilesAfterEnv: ['./jest-setup-after-env.js'],
   collectCoverage: true,
   // add directories here to include them in coverage reports and threshold
   collectCoverageFrom: ['./src/**'],

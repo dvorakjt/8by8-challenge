@@ -11,6 +11,7 @@ import { createId } from '@paralleldrive/cuid2';
 import { AlertsContextProvider } from '@/contexts/alerts-context';
 import { PromiseScheduler } from '@/utils/test/promise-scheduler';
 import { mockShareAPI } from '@/utils/test/mock-share-api';
+import * as createShareLinkModule from '@/app/share/create-share-link';
 import type { AppRouterInstance } from 'next/dist/shared/lib/app-router-context.shared-runtime';
 import type { User } from '@/model/types/user';
 
@@ -18,9 +19,21 @@ jest.mock('next/navigation', () => ({
   useRouter: jest.fn(),
 }));
 
+jest.mock('../../../../app/share/create-share-link', () => ({
+  __esModule: true,
+  ...jest.requireActual('../../../../app/share/create-share-link'),
+}));
+
 describe('Share', () => {
   let router: AppRouterInstance;
-  mockShareAPI();
+  const shareLink = `https://challenge.8by8.us/playerwelcome?${SearchParams.InviteCode}=`;
+
+  beforeAll(() => {
+    mockShareAPI();
+    jest
+      .spyOn(createShareLinkModule, 'createShareLink')
+      .mockImplementation((inviteCode: string) => shareLink + inviteCode);
+  });
 
   beforeEach(() => {
     router = Builder<AppRouterInstance>().back(jest.fn()).build();
@@ -40,8 +53,7 @@ describe('Share', () => {
     render(
       <AlertsContextProvider>
         <UserContext.Provider value={userContextValue}>
-          {' '}
-          <Share shareLink="test" />{' '}
+          <Share />
         </UserContext.Provider>
       </AlertsContextProvider>,
     );
@@ -49,7 +61,6 @@ describe('Share', () => {
 
   it(`should call shareChallenge and copy the user's invitation link when the 
   user clicks the copylink button.`, async () => {
-    const shareLink = `https://challenge.8by8.us/share?${SearchParams.InviteCode}=`;
     const inviteCode = createId();
     const appUser = Builder<User>()
       .inviteCode(inviteCode)
@@ -68,7 +79,7 @@ describe('Share', () => {
     render(
       <AlertsContextProvider>
         <UserContext.Provider value={userContextValue}>
-          <Share shareLink={shareLink} />
+          <Share />
         </UserContext.Provider>
       </AlertsContextProvider>,
     );
@@ -83,7 +94,6 @@ describe('Share', () => {
   it(`should not call shareChallenge() if the user has already completed that 
   action when the copy link button is clicked, but it should still copy the 
   link.`, async () => {
-    const shareLink = `https://challenge.8by8.us/share?${SearchParams.InviteCode}=`;
     const inviteCode = createId();
     const appUser = Builder<User>()
       .inviteCode(inviteCode)
@@ -104,7 +114,7 @@ describe('Share', () => {
     render(
       <AlertsContextProvider>
         <UserContext.Provider value={userContextValue}>
-          <Share shareLink={shareLink} />
+          <Share />
         </UserContext.Provider>
       </AlertsContextProvider>,
     );
@@ -117,7 +127,6 @@ describe('Share', () => {
   });
 
   it('should display an alert if shareChallege() throws an error.', async () => {
-    const shareLink = `https://challenge.8by8.us/share?${SearchParams.InviteCode}=`;
     const inviteCode = createId();
     const appUser = Builder<User>()
       .inviteCode(inviteCode)
@@ -138,7 +147,7 @@ describe('Share', () => {
     render(
       <AlertsContextProvider>
         <UserContext.Provider value={userContextValue}>
-          <Share shareLink={shareLink} />
+          <Share />
         </UserContext.Provider>
       </AlertsContextProvider>,
     );
@@ -158,7 +167,6 @@ describe('Share', () => {
   });
 
   it('should not call shareChallenge() if the loading state is true.', async () => {
-    const shareLink = `https://challenge.8by8.us/share?${SearchParams.InviteCode}=`;
     const inviteCode = createId();
     const appUser = Builder<User>()
       .inviteCode(inviteCode)
@@ -187,7 +195,7 @@ describe('Share', () => {
     render(
       <AlertsContextProvider>
         <UserContext.Provider value={userContextValue}>
-          <Share shareLink={shareLink} />
+          <Share />
         </UserContext.Provider>
       </AlertsContextProvider>,
     );
@@ -204,7 +212,6 @@ describe('Share', () => {
       .spyOn(navigator, 'canShare')
       .mockImplementation(() => true);
 
-    const shareLink = `https://challenge.8by8.us/share?${SearchParams.InviteCode}=`;
     const inviteCode = createId();
     const appUser = Builder<User>()
       .inviteCode(inviteCode)
@@ -231,12 +238,12 @@ describe('Share', () => {
     render(
       <AlertsContextProvider>
         <UserContext.Provider value={userContextValue}>
-          <Share shareLink={shareLink} />
+          <Share />
         </UserContext.Provider>
       </AlertsContextProvider>,
     );
 
-    expect(screen.queryByText('Share via')).toBeInTheDocument();
+    expect(screen.queryByText('Share')).toBeInTheDocument();
     canShareSpy.mockRestore();
   });
 
@@ -246,7 +253,6 @@ describe('Share', () => {
       .spyOn(navigator, 'canShare')
       .mockImplementation(() => false);
 
-    const shareLink = `https://challenge.8by8.us/share?${SearchParams.InviteCode}=`;
     const inviteCode = createId();
     const appUser = Builder<User>()
       .inviteCode(inviteCode)
@@ -273,12 +279,12 @@ describe('Share', () => {
     render(
       <AlertsContextProvider>
         <UserContext.Provider value={userContextValue}>
-          <Share shareLink={shareLink} />
+          <Share />
         </UserContext.Provider>
       </AlertsContextProvider>,
     );
 
-    expect(screen.queryByText('Share via')).not.toBeInTheDocument();
+    expect(screen.queryByText('Share')).not.toBeInTheDocument();
     canShareSpy.mockRestore();
   });
 
@@ -287,7 +293,6 @@ describe('Share', () => {
       .spyOn(navigator, 'canShare')
       .mockImplementation(() => true);
 
-    const shareLink = `https://challenge.8by8.us/share?${SearchParams.InviteCode}=`;
     const inviteCode = createId();
     const appUser = Builder<User>()
       .inviteCode(inviteCode)
@@ -308,12 +313,12 @@ describe('Share', () => {
     render(
       <AlertsContextProvider>
         <UserContext.Provider value={userContextValue}>
-          <Share shareLink={shareLink} />
+          <Share />
         </UserContext.Provider>
       </AlertsContextProvider>,
     );
 
-    await user.click(screen.getByText(/Share via/i));
+    await user.click(screen.getByText(/Share/i));
     expect(userContextValue.shareChallenge).toHaveBeenCalled();
     canShareSpy.mockRestore();
   });
@@ -324,7 +329,6 @@ describe('Share', () => {
       .spyOn(navigator, 'canShare')
       .mockImplementation(() => true);
 
-    const shareLink = `https://challenge.8by8.us/share?${SearchParams.InviteCode}=`;
     const inviteCode = createId();
     const appUser = Builder<User>()
       .inviteCode(inviteCode)
@@ -353,13 +357,13 @@ describe('Share', () => {
     render(
       <AlertsContextProvider>
         <UserContext.Provider value={userContextValue}>
-          <Share shareLink={shareLink} />
+          <Share />
         </UserContext.Provider>
       </AlertsContextProvider>,
     );
 
     for (let i = 0; i < 6; i++) {
-      await user.click(screen.getByText(/Share via/i));
+      await user.click(screen.getByText(/Share/i));
     }
 
     expect(userContextValue.shareChallenge).toHaveBeenCalledTimes(1);
@@ -371,7 +375,6 @@ describe('Share', () => {
       .spyOn(navigator, 'canShare')
       .mockImplementation(() => true);
 
-    const shareLink = `https://challenge.8by8.us/share?${SearchParams.InviteCode}=`;
     const inviteCode = createId();
     const appUser = Builder<User>()
       .inviteCode(inviteCode)
@@ -392,7 +395,7 @@ describe('Share', () => {
     render(
       <AlertsContextProvider>
         <UserContext.Provider value={userContextValue}>
-          <Share shareLink={shareLink} />
+          <Share />
         </UserContext.Provider>
       </AlertsContextProvider>,
     );
@@ -403,7 +406,7 @@ describe('Share', () => {
       ),
     ).not.toBeInTheDocument();
 
-    await user.click(screen.getByText(/Share via/i));
+    await user.click(screen.getByText(/Share/i));
 
     expect(
       screen.queryByText(
@@ -427,7 +430,6 @@ describe('Share', () => {
       .spyOn(console, 'error')
       .mockImplementation(jest.fn());
 
-    const shareLink = `https://challenge.8by8.us/share?${SearchParams.InviteCode}=`;
     const inviteCode = createId();
     const appUser = Builder<User>()
       .inviteCode(inviteCode)
@@ -448,13 +450,13 @@ describe('Share', () => {
     render(
       <AlertsContextProvider>
         <UserContext.Provider value={userContextValue}>
-          <Share shareLink={shareLink} />
+          <Share />
         </UserContext.Provider>
       </AlertsContextProvider>,
     );
 
     expect(consoleSpy).not.toHaveBeenCalled();
-    await user.click(screen.getByText(/Share via/i));
+    await user.click(screen.getByText(/Share/i));
     expect(consoleSpy).toHaveBeenCalled();
 
     canShareSpy.mockRestore();
@@ -463,7 +465,6 @@ describe('Share', () => {
   });
 
   it('should call router.back() when the user clicks the back button.', async () => {
-    const shareLink = `https://challenge.8by8.us/share?${SearchParams.InviteCode}=`;
     const inviteCode = createId();
     const appUser = Builder<User>()
       .inviteCode(inviteCode)
@@ -484,7 +485,7 @@ describe('Share', () => {
     render(
       <AlertsContextProvider>
         <UserContext.Provider value={userContextValue}>
-          <Share shareLink={shareLink} />
+          <Share />
         </UserContext.Provider>
       </AlertsContextProvider>,
     );
@@ -494,7 +495,6 @@ describe('Share', () => {
   });
 
   it('should display the Modal if the user clicks the image button.', async () => {
-    const shareLink = `https://challenge.8by8.us/share?${SearchParams.InviteCode}=`;
     const inviteCode = createId();
     const appUser = Builder<User>()
       .inviteCode(inviteCode)
@@ -515,7 +515,7 @@ describe('Share', () => {
     render(
       <AlertsContextProvider>
         <UserContext.Provider value={userContextValue}>
-          <Share shareLink={shareLink} />
+          <Share />
         </UserContext.Provider>
       </AlertsContextProvider>,
     );
@@ -526,7 +526,6 @@ describe('Share', () => {
   });
 
   it('should close the Modal when the user clicks on the close button.', async () => {
-    const shareLink = `https://challenge.8by8.us/share?${SearchParams.InviteCode}=`;
     const inviteCode = createId();
     const appUser = Builder<User>()
       .inviteCode(inviteCode)
@@ -547,7 +546,7 @@ describe('Share', () => {
     render(
       <AlertsContextProvider>
         <UserContext.Provider value={userContextValue}>
-          <Share shareLink={shareLink} />
+          <Share />
         </UserContext.Provider>
       </AlertsContextProvider>,
     );

@@ -58,7 +58,7 @@ export const ShowShareButton: Story = {
       <GlobalStylesProvider>
         <AlertsContextProvider>
           <UserContext.Provider value={userContextValue}>
-            <Share shareLink={'http://localhost:3000/SHARE'} />
+            <Share />
             <Footer />
           </UserContext.Provider>
         </AlertsContextProvider>
@@ -102,7 +102,7 @@ export const HideShareButton: Story = {
       <GlobalStylesProvider>
         <AlertsContextProvider>
           <UserContext.Provider value={userContextValue}>
-            <Share shareLink={'http://localhost:3000/SHARE'} hideShareButton />
+            <Share hideShareButton />
             <Footer />
           </UserContext.Provider>
         </AlertsContextProvider>

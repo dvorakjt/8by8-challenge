@@ -9,6 +9,7 @@ import Image from 'next/image';
 import { PageContainer } from '@/components/utils/page-container';
 import { LoadingWheel } from '@/components/utils/loading-wheel';
 import { Modal } from '../../components/utils/modal/modal';
+import { createShareLink } from './create-share-link';
 import copyLinkIcon from '../../../public/static/images/pages/share/copy-link.svg';
 import imagesIcon from '../../../public/static/images/pages/share/images-icon.svg';
 import backArrow from '../../../public/static/images/pages/share/back-icon.svg';
@@ -20,20 +21,18 @@ import socialMediaPostImage2 from '../../../public/static/images/pages/share/soc
 import styles from './styles.module.scss';
 
 interface ShareProps {
-  shareLink: string;
   hideShareButton?: boolean;
 }
 
 export const Share = isSignedIn(function Share({
-  shareLink,
   hideShareButton,
 }: ShareProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const { user, shareChallenge } = useContextSafely(UserContext, 'Share');
   const { showAlert } = useContextSafely(AlertsContext, 'Share');
-  const fullLink = shareLink + user!.inviteCode;
-  const shareData = { url: fullLink };
+  const shareLink = createShareLink(user!.inviteCode);
+  const shareData = { url: shareLink };
   const router = useRouter();
 
   const copyLink = async () => {
@@ -55,7 +54,7 @@ export const Share = isSignedIn(function Share({
       }
     }
 
-    navigator.clipboard.writeText(fullLink);
+    navigator.clipboard.writeText(shareLink);
   };
 
   const canShare =
@@ -124,7 +123,7 @@ export const Share = isSignedIn(function Share({
         {showShareButton && (
           <button onClick={share} className={styles.button}>
             <Image src={socialShareIcon} alt="socialshareicon" />
-            Share via
+            Share
           </button>
         )}
         <button className={styles.button} onClick={openModal}>

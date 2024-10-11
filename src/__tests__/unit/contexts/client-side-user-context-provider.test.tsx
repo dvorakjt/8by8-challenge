@@ -1887,7 +1887,7 @@ describe('ClientSideUserContextProvider', () => {
         updatedUser = user;
       }, [user]);
 
-      return <button onClick={shareChallenge}>Share via</button>;
+      return <button onClick={shareChallenge}>Share</button>;
     }
 
     render(
@@ -1903,7 +1903,7 @@ describe('ClientSideUserContextProvider', () => {
     );
 
     await waitFor(() => expect(updatedUser).toStrictEqual(signedInUser));
-    await user.click(screen.getByText(/Share via/i));
+    await user.click(screen.getByText(/Share/i));
     await waitFor(() => expect(fetchSpy).toHaveBeenCalled());
     expect(updatedUser).toEqual({
       ...signedInUser,
@@ -1973,7 +1973,7 @@ describe('ClientSideUserContextProvider', () => {
         }
       };
 
-      return <button onClick={onClick}>Share via</button>;
+      return <button onClick={onClick}>Share</button>;
     }
 
     render(
@@ -1988,7 +1988,7 @@ describe('ClientSideUserContextProvider', () => {
       </AlertsContextProvider>,
     );
 
-    await user.click(screen.getByText(/Share via/i));
+    await user.click(screen.getByText(/Share/i));
     await waitFor(() => {
       const alert = screen.queryByRole('alert');
       expect(alert).toBeInTheDocument();
@@ -2013,7 +2013,7 @@ describe('ClientSideUserContextProvider', () => {
         UserContext,
         'ShareChallenge',
       );
-      return <button onClick={shareChallenge}>Share via</button>;
+      return <button onClick={shareChallenge}>Share</button>;
     }
     const user = userEvent.setup();
 
@@ -2028,7 +2028,7 @@ describe('ClientSideUserContextProvider', () => {
         </ClientSideUserContextProvider>
       </AlertsContextProvider>,
     );
-    await user.click(screen.getByText(/Share via/i));
+    await user.click(screen.getByText(/Share/i));
     expect(fetchSpy).not.toHaveBeenCalledWith('/api/share-challenge', {
       method: 'PUT',
     });
