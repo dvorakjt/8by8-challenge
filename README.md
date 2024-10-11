@@ -14,8 +14,8 @@ Currently, we are working on migrating the existing application to Next.js and T
 1.  Install Node.js version 18.17 or higher. https://nodejs.org/en/download/package-manager
 2.  Install Docker. https://www.docker.com/. If you are running Docker on Windows, note that you will need to have WSL 2 enabled. Please see this documentation for more information on setting up WSL 2. https://learn.microsoft.com/en-us/windows/wsl/install
 3.  Fork this repository and clone your fork to your machine. In the terminal, navigate into the project directory and run `npm install`. This will install the project's dependencies.
-4.  Copy the contents of `.env.example` into a file named `.env` (this should go in the root directory of the project).
-5.  Start Docker (you will need Docker running each time you start the application). Please note that you should NOT edit the `.env.example` file directly.
+4.  Copy the contents of `.env.example` into a file named `.env` (this should go in the root directory of the project). Please note that you should NOT edit the `.env.example` file directly.
+5.  Start Docker (you will need Docker running each time you start the application).
 6.  Run the command `npm run kv:start`. This will start Docker containers that emulate the functionality of [Vercel KV](https://vercel.com/docs/storage/vercel-kv) locally, which is used for applying rate limitations to certain routes.
 7.  Copy the url and token output by this command and, in your `.env` file, paste into the environment variables `KV_REST_API_URL` and `KV_REST_API_TOKEN`, respectively.
 8.  Run the command `npm run supabase-dev:start`. This will start a local Supabase instance. When this command is successful, its output will include an API URL, an anon key, and a service_role key. Paste these values into your `.env` file, assigning them to the variables `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, and `SUPABASE_SERVICE_ROLE_KEY`, respectively.
