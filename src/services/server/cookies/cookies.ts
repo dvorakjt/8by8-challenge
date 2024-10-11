@@ -7,6 +7,7 @@ import { Encryptor } from '../encryptor/encryptor';
 import { SERVER_SERVICE_KEYS } from '../keys';
 import { PRIVATE_ENVIRONMENT_VARIABLES } from '@/constants/private-environment-variables';
 import type { ICookies } from './i-cookies';
+
 /**
  * An implementation of {@link ICookies}. Provides a mechanism for setting
  * cookies to track various settings, such as the email address to which a
@@ -19,8 +20,9 @@ export const Cookies = inject(
     constructor(private encryptor: Encryptor) {}
 
     async setEmailForSignIn(email: string): Promise<void> {
-      const cryptoKey = await PRIVATE_ENVIRONMENT_VARIABLES.CRYPTO_KEY_COOKIES;
-      const encryptedEmail = await this.encryptor.encrypt(email, cryptoKey);
+      const encryptionKey =
+        await PRIVATE_ENVIRONMENT_VARIABLES.CRYPTO_KEY_COOKIES;
+      const encryptedEmail = await this.encryptor.encrypt(email, encryptionKey);
 
       return new Promise(resolve => {
         cookies().set(CookieNames.EmailForSignIn, encryptedEmail, {
@@ -34,7 +36,8 @@ export const Cookies = inject(
     }
 
     async loadEmailForSignIn(): Promise<string> {
-      const CryptoKey = await PRIVATE_ENVIRONMENT_VARIABLES.CRYPTO_KEY_COOKIES;
+      const encryptionKey =
+        await PRIVATE_ENVIRONMENT_VARIABLES.CRYPTO_KEY_COOKIES;
 
       return new Promise(resolve => {
         const encryptedEmail = cookies().get(CookieNames.EmailForSignIn);
@@ -44,7 +47,7 @@ export const Cookies = inject(
         }
         const cookie = this.encryptor.decrypt(
           encryptedEmailAsString,
-          CryptoKey,
+          encryptionKey,
         );
         resolve(cookie);
       });
