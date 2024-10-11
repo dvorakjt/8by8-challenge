@@ -49,7 +49,10 @@ describe('ClientSideUserContextProvider', () => {
   let user: UserEvent;
 
   beforeEach(() => {
-    router = Builder<AppRouterInstance>().push(jest.fn()).build();
+    router = Builder<AppRouterInstance>()
+      .push(jest.fn())
+      .prefetch(jest.fn())
+      .build();
     jest.spyOn(navigation, 'useRouter').mockImplementation(() => router);
     user = userEvent.setup();
   });
@@ -1887,7 +1890,7 @@ describe('ClientSideUserContextProvider', () => {
         updatedUser = user;
       }, [user]);
 
-      return <button onClick={shareChallenge}>Share</button>;
+      return <button onClick={shareChallenge}>Share via</button>;
     }
 
     render(
@@ -1903,7 +1906,7 @@ describe('ClientSideUserContextProvider', () => {
     );
 
     await waitFor(() => expect(updatedUser).toStrictEqual(signedInUser));
-    await user.click(screen.getByText(/Share/i));
+    await user.click(screen.getByText(/Share via/i));
     await waitFor(() => expect(fetchSpy).toHaveBeenCalled());
     expect(updatedUser).toEqual({
       ...signedInUser,
@@ -1973,7 +1976,7 @@ describe('ClientSideUserContextProvider', () => {
         }
       };
 
-      return <button onClick={onClick}>Share</button>;
+      return <button onClick={onClick}>Share via</button>;
     }
 
     render(
@@ -1988,7 +1991,7 @@ describe('ClientSideUserContextProvider', () => {
       </AlertsContextProvider>,
     );
 
-    await user.click(screen.getByText(/Share/i));
+    await user.click(screen.getByText(/Share via/i));
     await waitFor(() => {
       const alert = screen.queryByRole('alert');
       expect(alert).toBeInTheDocument();
@@ -2013,7 +2016,7 @@ describe('ClientSideUserContextProvider', () => {
         UserContext,
         'ShareChallenge',
       );
-      return <button onClick={shareChallenge}>Share</button>;
+      return <button onClick={shareChallenge}>Share via</button>;
     }
     const user = userEvent.setup();
 
@@ -2028,7 +2031,7 @@ describe('ClientSideUserContextProvider', () => {
         </ClientSideUserContextProvider>
       </AlertsContextProvider>,
     );
-    await user.click(screen.getByText(/Share/i));
+    await user.click(screen.getByText(/Share via/i));
     expect(fetchSpy).not.toHaveBeenCalledWith('/api/share-challenge', {
       method: 'PUT',
     });
