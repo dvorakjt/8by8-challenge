@@ -206,9 +206,11 @@ describe('SignInPage', () => {
     process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY =
       CLOUDFLARE_TURNSTILE_DUMMY_SITE_KEYS.ALWAYS_PASSES;
 
+    const errorMessage = 'Too many requests. Please try again later.';
+
     userContextValue = Builder<UserContextType>()
       .sendOTPToEmail(() => {
-        throw new Error();
+        throw new Error(errorMessage);
       })
       .build();
 
@@ -229,9 +231,7 @@ describe('SignInPage', () => {
     await user.click(signInBtn);
 
     await waitFor(() => {
-      expect(screen.getByRole('alert').textContent).toBe(
-        'Something went wrong. Please try again.',
-      );
+      expect(screen.getByRole('alert').textContent).toBe(errorMessage);
     });
   });
 
