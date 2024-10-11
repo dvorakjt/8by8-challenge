@@ -10,6 +10,7 @@ import { PageContainer } from '@/components/utils/page-container';
 import { LoadingWheel } from '@/components/utils/loading-wheel';
 import { Modal } from '../../components/utils/modal/modal';
 import { createShareLink } from './create-share-link';
+import { UserType } from '@/model/enums/user-type';
 import copyLinkIcon from '../../../public/static/images/pages/share/copy-link.svg';
 import imagesIcon from '../../../public/static/images/pages/share/images-icon.svg';
 import backArrow from '../../../public/static/images/pages/share/back-icon.svg';
@@ -29,9 +30,12 @@ export const Share = isSignedIn(function Share({
 }: ShareProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const { user, shareChallenge } = useContextSafely(UserContext, 'Share');
+  const { user, invitedBy, shareChallenge } = useContextSafely(
+    UserContext,
+    'Share',
+  );
   const { showAlert } = useContextSafely(AlertsContext, 'Share');
-  const shareLink = createShareLink(user!.inviteCode);
+  const shareLink = createShareLink(user!, invitedBy);
   const shareData = { url: shareLink };
   const router = useRouter();
 
@@ -64,6 +68,12 @@ export const Share = isSignedIn(function Share({
     window.navigator.canShare(shareData);
 
   const showShareButton = !hideShareButton && canShare;
+
+  const paragraphText =
+    user?.completedChallenge ? 'Invite friends to take the 8by8 Challenge!'
+    : user?.type === UserType.Player && invitedBy ?
+      `Invite friends to support ${invitedBy.challengerName}'s challenge by taking an action: register to vote, get election reminders, or take the 8by8 challenge.`
+    : 'Invite friends to support your challenge by taking an action: register to vote, get election reminders, or take the 8by8 challenge.';
 
   const share = async () => {
     if (isLoading || !canShare) {
@@ -110,10 +120,7 @@ export const Share = isSignedIn(function Share({
           src={calendarImage}
           alt="calendar"
         />
-        <p className={styles.paragraph}>
-          Invite friends to support your challenge by taking an action: register
-          to vote, get election reminders, or take the 8by8 challenge.
-        </p>
+        <p className={styles.paragraph}>{paragraphText}</p>
       </div>
       <div className={styles.button_container}>
         <button className={styles.button} onClick={copyLink}>

@@ -11,33 +11,28 @@ import { createId } from '@paralleldrive/cuid2';
 import { AlertsContextProvider } from '@/contexts/alerts-context';
 import { PromiseScheduler } from '@/utils/test/promise-scheduler';
 import { mockShareAPI } from '@/utils/test/mock-share-api';
-import * as createShareLinkModule from '@/app/share/create-share-link';
+import { UserType } from '@/model/enums/user-type';
 import type { AppRouterInstance } from 'next/dist/shared/lib/app-router-context.shared-runtime';
 import type { User } from '@/model/types/user';
+import type { ChallengerData } from '@/model/types/challenger-data';
 
 jest.mock('next/navigation', () => ({
   useRouter: jest.fn(),
 }));
 
-jest.mock('../../../../app/share/create-share-link', () => ({
-  __esModule: true,
-  ...jest.requireActual('../../../../app/share/create-share-link'),
-}));
-
 describe('Share', () => {
   let router: AppRouterInstance;
-  const shareLink = `https://challenge.8by8.us/playerwelcome?${SearchParams.InviteCode}=`;
+  const host = 'https://challenge.8by8.us';
+  const invitationLink = host + `/playerwelcome?${SearchParams.InviteCode}=`;
 
   beforeAll(() => {
     mockShareAPI();
-    jest
-      .spyOn(createShareLinkModule, 'createShareLink')
-      .mockImplementation((inviteCode: string) => shareLink + inviteCode);
   });
 
   beforeEach(() => {
     router = Builder<AppRouterInstance>().back(jest.fn()).build();
     jest.spyOn(navigation, 'useRouter').mockImplementation(() => router);
+    window.location.assign(host + '/share');
     mockDialogMethods();
   });
 
@@ -88,7 +83,7 @@ describe('Share', () => {
     expect(userContextValue.shareChallenge).toHaveBeenCalled();
 
     const copiedLink = await navigator.clipboard.readText();
-    expect(copiedLink).toBe(shareLink + inviteCode);
+    expect(copiedLink).toBe(invitationLink + inviteCode);
   });
 
   it(`should not call shareChallenge() if the user has already completed that 
@@ -123,7 +118,7 @@ describe('Share', () => {
     expect(userContextValue.shareChallenge).not.toHaveBeenCalled();
 
     const copiedLink = await navigator.clipboard.readText();
-    expect(copiedLink).toBe(shareLink + inviteCode);
+    expect(copiedLink).toBe(invitationLink + inviteCode);
   });
 
   it('should display an alert if shareChallege() throws an error.', async () => {
@@ -553,5 +548,61 @@ describe('Share', () => {
 
     await user.click(screen.getByLabelText('close dialog'));
     expect(HTMLDialogElement.prototype.close).toHaveBeenCalled();
+  });
+
+  test(`The paragraph text it renders changes if the user has completed the 
+  challenge.`, () => {
+    const appUser = Builder<User>()
+      .inviteCode(createId())
+      .completedChallenge(true)
+      .build();
+
+    const userContextValue = Builder<UserContextType>()
+      .user(appUser)
+      .shareChallenge(jest.fn())
+      .build();
+
+    render(
+      <AlertsContextProvider>
+        <UserContext.Provider value={userContextValue}>
+          <Share />
+        </UserContext.Provider>
+      </AlertsContextProvider>,
+    );
+
+    expect(
+      screen.queryByText('Invite friends to take the 8by8 Challenge!'),
+    ).toBeInTheDocument();
+  });
+
+  test(`The paragraph text it renders changes if the user is player-type user 
+  and invitedBy is not null.`, () => {
+    const appUser = Builder<User>().type(UserType.Player).build();
+
+    const invitedBy: ChallengerData = {
+      challengerName: 'John Doe',
+      challengerInviteCode: createId(),
+      challengerAvatar: '0',
+    };
+
+    const userContextValue = Builder<UserContextType>()
+      .user(appUser)
+      .invitedBy(invitedBy)
+      .shareChallenge(jest.fn())
+      .build();
+
+    render(
+      <AlertsContextProvider>
+        <UserContext.Provider value={userContextValue}>
+          <Share />
+        </UserContext.Provider>
+      </AlertsContextProvider>,
+    );
+
+    expect(
+      screen.queryByText(
+        `Invite friends to support ${invitedBy.challengerName}'s challenge by taking an action: register to vote, get election reminders, or take the 8by8 challenge.`,
+      ),
+    ).toBeInTheDocument();
   });
 });
