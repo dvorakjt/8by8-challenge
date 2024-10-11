@@ -1,14 +1,14 @@
-name: 'Deploy and Test Staging Branch'
+name: 'Deploy Production Branch'
 
 on:
   push:
     branches:
-      - staging
+      - production
 
 jobs:
-  reset-db:
+  run-migrations:
     runs-on: ubuntu-latest
-    environment: staging
+    environment: production
     env:
       SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
       SUPABASE_DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
@@ -21,14 +21,12 @@ jobs:
           version: latest
 
       - run: supabase link --project-ref $SUPABASE_PROJECT_ID
-      - run: supabase db reset --linked <<< 'y'
+      - run: supabase db push
 
   deploy:
     runs-on: ubuntu-latest
-    needs: reset-db
-    outputs:
-      preview-url: ${{ steps.deploy.outputs.preview-url }}
-    environment: staging
+    needs: run-migrations
+    environment: production
     env:
       VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
       VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
@@ -36,7 +34,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - run: npm install --global vercel@canary
-      - run: vercel pull --yes --environment=preview --token=$VERCEL_TOKEN
+      - run: vercel pull --yes --environment=production --token=$VERCEL_TOKEN
       - run: |
           echo "NEXT_PUBLIC_TURNSTILE_SITE_KEY=${{ vars.TURNSTILE_SITE_KEY }}" >> $GITHUB_ENV
           echo "NEXT_PUBLIC_SUPABASE_URL=${{ vars.SUPABASE_URL }}" >> $GITHUB_ENV
@@ -46,15 +44,6 @@ jobs:
           echo "VOTER_REGISTRATION_REPO_ENCRYPTION_KEY=${{ secrets.VOTER_REGISTRATION_REPO_ENCRYPTION_KEY }}" >> $GITHUB_ENV
           echo "GOOGLE_MAPS_API_KEY=${{ secrets.GOOGLE_MAPS_API_KEY }}" >> $GITHUB_ENV
           echo "CRYPTO_KEY_COOKIES=${{ secrets.CRYPTO_KEY_COOKIES }}" >> $GITHUB_ENV
-      - run: vercel build --token=$VERCEL_TOKEN
-      - run: node scripts/create-or-update-vercel-environment-variables.js preview
-      - id: deploy
-        run: echo "preview-url=$(vercel deploy --prebuilt --token=$VERCEL_TOKEN)" >> $GITHUB_OUTPUT
-
-  test_homepage:
-    needs: deploy
-    uses: ./.github/workflows/run-selenium-test.yml
-    with:
-      test: homepage_test.py
-      preview-url: ${{ needs.deploy.outputs.preview-url }}
-    secrets: inherit
+      - run: vercel build --prod --token=$VERCEL_TOKEN
+      - run: node scripts/create-or-update-vercel-environment-variables.js production
+      - run: vercel deploy --prebuilt --prod --token=$VERCEL_TOKEN
