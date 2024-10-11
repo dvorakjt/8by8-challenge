@@ -1,4 +1,5 @@
-import { POST, rateLimiter } from '@/app/api/signin-with-otp/route';
+import { POST } from '@/app/api/signin-with-otp/route';
+import { rateLimiter } from '@/app/api/signin-with-otp/rate-limiter';
 import { NextRequest } from 'next/server';
 import { serverContainer } from '@/services/server/container';
 import { SERVER_SERVICE_KEYS } from '@/services/server/keys';
