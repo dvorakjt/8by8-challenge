@@ -31,7 +31,7 @@ function getContainerIds() {
 
 function stopContainers(containerIds) {
   return new Promise((resolve, reject) => {
-    exec(`docker stop ${containerIds.join(' ')}`, error => {
+    exec(`docker rm -f ${containerIds.join(' ')}`, error => {
       if (error) reject(error);
       else resolve();
     });
