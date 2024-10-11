@@ -29,6 +29,7 @@ import type { AppRouterInstance } from 'next/dist/shared/lib/app-router-context.
 import type { Avatar } from '@/model/types/avatar';
 import type { ValueOf } from 'fully-formed';
 import { isErrorWithMessage } from '@/utils/shared/is-error-with-message';
+import { calculateDaysRemaining } from '@/app/progress/calculate-days-remaining';
 
 jest.mock('next/navigation', () => ({
   useRouter: jest.fn(),
@@ -1890,7 +1891,7 @@ describe('ClientSideUserContextProvider', () => {
         updatedUser = user;
       }, [user]);
 
-      return <button onClick={shareChallenge}>Share via</button>;
+      return <button onClick={shareChallenge}>Share</button>;
     }
 
     render(
@@ -1906,7 +1907,7 @@ describe('ClientSideUserContextProvider', () => {
     );
 
     await waitFor(() => expect(updatedUser).toStrictEqual(signedInUser));
-    await user.click(screen.getByText(/Share via/i));
+    await user.click(screen.getByText(/Share/i));
     await waitFor(() => expect(fetchSpy).toHaveBeenCalled());
     expect(updatedUser).toEqual({
       ...signedInUser,
@@ -1976,7 +1977,7 @@ describe('ClientSideUserContextProvider', () => {
         }
       };
 
-      return <button onClick={onClick}>Share via</button>;
+      return <button onClick={onClick}>Share</button>;
     }
 
     render(
@@ -1991,7 +1992,7 @@ describe('ClientSideUserContextProvider', () => {
       </AlertsContextProvider>,
     );
 
-    await user.click(screen.getByText(/Share via/i));
+    await user.click(screen.getByText(/Share/i));
     await waitFor(() => {
       const alert = screen.queryByRole('alert');
       expect(alert).toBeInTheDocument();
@@ -2016,7 +2017,7 @@ describe('ClientSideUserContextProvider', () => {
         UserContext,
         'ShareChallenge',
       );
-      return <button onClick={shareChallenge}>Share via</button>;
+      return <button onClick={shareChallenge}>Share</button>;
     }
     const user = userEvent.setup();
 
@@ -2031,8 +2032,203 @@ describe('ClientSideUserContextProvider', () => {
         </ClientSideUserContextProvider>
       </AlertsContextProvider>,
     );
-    await user.click(screen.getByText(/Share via/i));
+    await user.click(screen.getByText(/Share/i));
     expect(fetchSpy).not.toHaveBeenCalledWith('/api/share-challenge', {
+      method: 'PUT',
+    });
+    fetchSpy.mockRestore();
+  });
+
+  ///////////////////////////////////////////////////////
+  test(`When restartChallenge is called, a PUT request should be made to 
+  /api/restart-challenge, and if the response is ok, the user should be 
+  updated.`, async () => {
+    const signedInUser: User = {
+      uid: '1',
+      email: 'user@example.com',
+      name: 'User',
+      avatar: '0',
+      type: UserType.Challenger,
+      completedActions: {
+        electionReminders: false,
+        registerToVote: false,
+        sharedChallenge: false,
+      },
+      badges: [],
+      contributedTo: [],
+      completedChallenge: false,
+      challengeEndTimestamp: 0,
+      inviteCode: '',
+    };
+
+    const fetchSpy = jest
+      .spyOn(globalThis, 'fetch')
+      .mockImplementation(route => {
+        if (route === '/api/restart-challenge') {
+          return Promise.resolve(
+            NextResponse.json(
+              {
+                user: {
+                  ...signedInUser,
+                  challengeEndTimestamp: DateTime.now()
+                    .plus({ days: 8 })
+                    .toUnixInteger(),
+                },
+              },
+              { status: 200 },
+            ),
+          );
+        }
+
+        return Promise.resolve(new Response(null, { status: 200 }));
+      });
+
+    let updatedUser: User | null = null;
+
+    function RestartChallenge() {
+      const { user, restartChallenge } = useContextSafely(
+        UserContext,
+        'RestartChallenge',
+      );
+
+      useEffect(() => {
+        updatedUser = user;
+      }, [user]);
+
+      return <button onClick={restartChallenge}>Restart</button>;
+    }
+
+    render(
+      <AlertsContextProvider>
+        <ClientSideUserContextProvider
+          user={signedInUser}
+          invitedBy={null}
+          emailForSignIn="user@example.com"
+        >
+          <RestartChallenge />
+        </ClientSideUserContextProvider>
+      </AlertsContextProvider>,
+    );
+
+    await waitFor(() => expect(updatedUser).toStrictEqual(signedInUser));
+    expect(calculateDaysRemaining(updatedUser)).toBe(0);
+
+    await user.click(screen.getByText(/restart/i));
+    await waitFor(() => expect(fetchSpy).toHaveBeenCalled());
+    expect(calculateDaysRemaining(updatedUser)).toBe(8);
+
+    fetchSpy.mockRestore();
+  });
+
+  it(`should throw an error when restartChallenge() is called and the response 
+  from /api/restart-challenge is not ok.`, async () => {
+    const signedInUser: User = {
+      uid: '1',
+      email: 'user@example.com',
+      name: 'User',
+      avatar: '0',
+      type: UserType.Challenger,
+      completedActions: {
+        electionReminders: false,
+        registerToVote: false,
+        sharedChallenge: false,
+      },
+      badges: [],
+      contributedTo: [],
+      completedChallenge: false,
+      challengeEndTimestamp: 0,
+      inviteCode: '',
+    };
+
+    const fetchSpy = jest
+      .spyOn(globalThis, 'fetch')
+      .mockImplementation(route => {
+        if (route === '/api/restart-challenge') {
+          return Promise.resolve(
+            NextResponse.json(
+              {
+                message: 'Error making the put request status 400',
+              },
+              { status: 400 },
+            ),
+          );
+        }
+
+        return Promise.resolve(new Response(null, { status: 200 }));
+      });
+
+    function RestartChallenge() {
+      const { restartChallenge } = useContextSafely(
+        UserContext,
+        'RestartChallenge',
+      );
+      const { showAlert } = useContextSafely(AlertsContext, 'ShareChallenge');
+
+      const onClick = async () => {
+        try {
+          await restartChallenge();
+        } catch (e) {
+          showAlert('There was a problem sending the request.', 'error');
+        }
+      };
+
+      return <button onClick={onClick}>Restart</button>;
+    }
+
+    render(
+      <AlertsContextProvider>
+        <ClientSideUserContextProvider
+          user={signedInUser}
+          invitedBy={null}
+          emailForSignIn="user@example.com"
+        >
+          <RestartChallenge />
+        </ClientSideUserContextProvider>
+      </AlertsContextProvider>,
+    );
+
+    await user.click(screen.getByText(/restart/i));
+    await waitFor(() => {
+      const alert = screen.queryByRole('alert');
+      expect(alert).toBeInTheDocument();
+      expect(alert?.textContent).toBe(
+        'There was a problem sending the request.',
+      );
+    });
+
+    fetchSpy.mockRestore();
+  });
+
+  it(`should return without making an api request when the user is null and 
+  restartChallenge() is called.`, async () => {
+    const fetchSpy = jest.spyOn(globalThis, 'fetch').mockResolvedValue(
+      new Response(null, {
+        status: 200,
+      }),
+    );
+
+    function RestartChallenge() {
+      const { restartChallenge } = useContextSafely(
+        UserContext,
+        'RestartChallenge',
+      );
+      return <button onClick={restartChallenge}>Restart</button>;
+    }
+    const user = userEvent.setup();
+
+    render(
+      <AlertsContextProvider>
+        <ClientSideUserContextProvider
+          user={null}
+          invitedBy={null}
+          emailForSignIn="user@example.com"
+        >
+          <RestartChallenge />
+        </ClientSideUserContextProvider>
+      </AlertsContextProvider>,
+    );
+    await user.click(screen.getByText(/restart/i));
+    expect(fetchSpy).not.toHaveBeenCalledWith('/api/restart-challenge', {
       method: 'PUT',
     });
     fetchSpy.mockRestore();
