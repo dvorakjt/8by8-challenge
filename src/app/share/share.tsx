@@ -61,7 +61,7 @@ export const Share = isSignedIn(function Share({
     }
 
     navigator.clipboard.writeText(shareLink);
-    showToast('Copied link!');
+    showToast('Link copied!');
   };
 
   const canShare =
