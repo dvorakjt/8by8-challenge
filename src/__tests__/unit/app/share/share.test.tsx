@@ -11,6 +11,7 @@ import { createId } from '@paralleldrive/cuid2';
 import { AlertsContextProvider } from '@/contexts/alerts-context';
 import { PromiseScheduler } from '@/utils/test/promise-scheduler';
 import { mockShareAPI } from '@/utils/test/mock-share-api';
+import { mockAnimate } from '@/utils/test/mock-animate';
 import { UserType } from '@/model/enums/user-type';
 import type { AppRouterInstance } from 'next/dist/shared/lib/app-router-context.shared-runtime';
 import type { User } from '@/model/types/user';
@@ -27,6 +28,7 @@ describe('Share', () => {
 
   beforeAll(() => {
     mockShareAPI();
+    mockAnimate();
   });
 
   beforeEach(() => {

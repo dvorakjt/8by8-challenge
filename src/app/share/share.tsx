@@ -8,7 +8,8 @@ import { AlertsContext } from '@/contexts/alerts-context';
 import Image from 'next/image';
 import { PageContainer } from '@/components/utils/page-container';
 import { LoadingWheel } from '@/components/utils/loading-wheel';
-import { Modal } from '../../components/utils/modal/modal';
+import { Modal } from '@/components/utils/modal';
+import { Toast, useToast } from '@/components/utils/toast';
 import { createShareLink } from './create-share-link';
 import { UserType } from '@/model/enums/user-type';
 import copyLinkIcon from '../../../public/static/images/pages/share/copy-link.svg';
@@ -35,6 +36,7 @@ export const Share = isSignedIn(function Share({
     'Share',
   );
   const { showAlert } = useContextSafely(AlertsContext, 'Share');
+  const { toastRef, showToast } = useToast();
   const shareLink = createShareLink(user!, invitedBy);
   const shareData = { url: shareLink };
   const router = useRouter();
@@ -59,6 +61,7 @@ export const Share = isSignedIn(function Share({
     }
 
     navigator.clipboard.writeText(shareLink);
+    showToast('Copied link!');
   };
 
   const canShare =
@@ -111,7 +114,7 @@ export const Share = isSignedIn(function Share({
     <PageContainer>
       <div className={styles.main_content}>
         <button className={styles.back_icon} onClick={() => router.back()}>
-          <Image src={backArrow} alt="backicon" />
+          <Image src={backArrow} alt="Back arrow" />
           Back
         </button>
         <h1 className={styles.header}>Invite friends</h1>
@@ -122,19 +125,24 @@ export const Share = isSignedIn(function Share({
         />
         <p className={styles.paragraph}>{paragraphText}</p>
       </div>
-      <div className={styles.button_container}>
-        <button className={styles.button} onClick={copyLink}>
-          <Image src={copyLinkIcon} alt="copylink" />
-          Copy link
-        </button>
+      <div className={styles.buttons_container}>
+        <div className={styles.copy_button_container}>
+          <button className={styles.button} onClick={copyLink}>
+            <Image src={copyLinkIcon} alt="Copy link" />
+            Copy link
+          </button>
+          <div className={styles.toast_container}>
+            <Toast ref={toastRef} />
+          </div>
+        </div>
         {showShareButton && (
           <button onClick={share} className={styles.button}>
-            <Image src={socialShareIcon} alt="socialshareicon" />
+            <Image src={socialShareIcon} alt="Social share icon" />
             Share
           </button>
         )}
         <button className={styles.button} onClick={openModal}>
-          <Image src={imagesIcon} alt="imagesicon" />
+          <Image src={imagesIcon} alt="Images icon" />
           Images for posts
         </button>
         <Modal

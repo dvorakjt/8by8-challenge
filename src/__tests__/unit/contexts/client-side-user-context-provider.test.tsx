@@ -2039,7 +2039,6 @@ describe('ClientSideUserContextProvider', () => {
     fetchSpy.mockRestore();
   });
 
-  ///////////////////////////////////////////////////////
   test(`When restartChallenge is called, a PUT request should be made to 
   /api/restart-challenge, and if the response is ok, the user should be 
   updated.`, async () => {
