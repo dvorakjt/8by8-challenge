@@ -114,7 +114,11 @@ export function ClientSideUserContextProvider(
     });
 
     if (!response.ok) {
-      throw new Error('Failed to create user.');
+      throw new Error(
+        response.status === 429 ?
+          'Too many requests. Please try again later.'
+        : 'Oops! Something went wrong.',
+      );
     }
 
     setEmailForSignIn(params.email);
@@ -128,7 +132,11 @@ export function ClientSideUserContextProvider(
     });
 
     if (!response.ok) {
-      throw new Error('Failed to send one-time passcode');
+      throw new Error(
+        response.status === 429 ?
+          'Too many requests. Please try again later.'
+        : 'Oops! Something went wrong.',
+      );
     }
 
     setEmailForSignIn(params.email);
@@ -142,7 +150,11 @@ export function ClientSideUserContextProvider(
     });
 
     if (!response.ok) {
-      throw new Error('Failed to send one-time passcode');
+      throw new Error(
+        response.status === 429 ?
+          'Too many requests. Please try again later.'
+        : 'Oops! Something went wrong.',
+      );
     }
   }
 
@@ -153,7 +165,11 @@ export function ClientSideUserContextProvider(
     });
 
     if (!response.ok) {
-      throw new Error('Failed to sign in with OTP.');
+      throw new Error(
+        response.status === 429 ?
+          'Too many requests. Please try again later.'
+        : 'Oops! Something went wrong.',
+      );
     }
 
     const data = await response.json();

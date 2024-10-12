@@ -28,6 +28,7 @@ import type { User } from '@/model/types/user';
 import type { AppRouterInstance } from 'next/dist/shared/lib/app-router-context.shared-runtime';
 import type { Avatar } from '@/model/types/avatar';
 import type { ValueOf } from 'fully-formed';
+import { isErrorWithMessage } from '@/utils/shared/is-error-with-message';
 
 jest.mock('next/navigation', () => ({
   useRouter: jest.fn(),
@@ -208,6 +209,62 @@ describe('ClientSideUserContextProvider', () => {
     fetchSpy.mockRestore();
   });
 
+  it(`makes a request to /api/signup-with-email when signUpWithEmail() is
+  called and throws an error with the message "Too many requests. Please try 
+  again later." when the status of the response is 429.`, async () => {
+    const fetchSpy = jest
+      .spyOn(global, 'fetch')
+      .mockResolvedValueOnce(new Response(null, { status: 429 }));
+
+    function SignUp() {
+      const { signUpWithEmail } = useContextSafely(UserContext, 'SignUp');
+      const { showAlert } = useContextSafely(AlertsContext, 'SignUp');
+
+      return (
+        <button
+          onClick={async () => {
+            try {
+              await signUpWithEmail({
+                email: 'user@example.com',
+                name: 'User',
+                avatar: '0',
+                captchaToken: 'test-token',
+              });
+            } catch (e) {
+              showAlert(isErrorWithMessage(e) ? e.message : '', 'error');
+            }
+          }}
+        >
+          Sign Up
+        </button>
+      );
+    }
+
+    render(
+      <AlertsContextProvider>
+        <ClientSideUserContextProvider
+          user={null}
+          invitedBy={null}
+          emailForSignIn=""
+        >
+          <SignUp />
+        </ClientSideUserContextProvider>
+      </AlertsContextProvider>,
+    );
+
+    await user.click(screen.getByText('Sign Up'));
+
+    await waitFor(() => {
+      const alert = screen.queryByRole('alert');
+      expect(alert).toBeInTheDocument();
+      expect(alert?.textContent).toBe(
+        'Too many requests. Please try again later.',
+      );
+    });
+
+    fetchSpy.mockRestore();
+  });
+
   it(`makes a request to /api/send-otp-to-email when sendOTPToEmail() is
   called, and if the response is ok, it sets emailForSignIn and redirects the
   user to /signin-with-otp.`, async () => {
@@ -317,6 +374,63 @@ describe('ClientSideUserContextProvider', () => {
     fetchSpy.mockRestore();
   });
 
+  it(`makes a request to /api/send-otp-to-email when sendOTPToEmail() is
+  called and throws an error with the message "Too many requests. Please try 
+  again later." if the status of the response is 429.`, async () => {
+    const fetchSpy = jest
+      .spyOn(global, 'fetch')
+      .mockResolvedValueOnce(new Response(null, { status: 429 }));
+
+    function SignInWithEmail() {
+      const { sendOTPToEmail } = useContextSafely(
+        UserContext,
+        'SignInWithEmail',
+      );
+      const { showAlert } = useContextSafely(AlertsContext, 'SignInWithEmail');
+
+      return (
+        <button
+          onClick={async () => {
+            try {
+              await sendOTPToEmail({
+                email: 'user@example.com',
+                captchaToken: 'test-token',
+              });
+            } catch (e) {
+              showAlert(isErrorWithMessage(e) ? e.message : '', 'error');
+            }
+          }}
+        >
+          Sign in
+        </button>
+      );
+    }
+
+    render(
+      <AlertsContextProvider>
+        <ClientSideUserContextProvider
+          user={null}
+          invitedBy={null}
+          emailForSignIn=""
+        >
+          <SignInWithEmail />
+        </ClientSideUserContextProvider>
+      </AlertsContextProvider>,
+    );
+
+    await user.click(screen.getByText('Sign in'));
+
+    await waitFor(() => {
+      const alert = screen.queryByRole('alert');
+      expect(alert).toBeInTheDocument();
+      expect(alert?.textContent).toBe(
+        'Too many requests. Please try again later.',
+      );
+    });
+
+    fetchSpy.mockRestore();
+  });
+
   it(`makes a request to /api/resend-otp-to-email when resendOTP() is
   called.`, async () => {
     const fetchSpy = jest
@@ -357,7 +471,7 @@ describe('ClientSideUserContextProvider', () => {
   throws an error if the response is not ok.`, async () => {
     const fetchSpy = jest
       .spyOn(global, 'fetch')
-      .mockResolvedValueOnce(new Response(null, { status: 429 }));
+      .mockResolvedValueOnce(new Response(null, { status: 403 }));
 
     function ResendOTP() {
       const { resendOTP } = useContextSafely(UserContext, 'ResendOTP');
@@ -396,6 +510,57 @@ describe('ClientSideUserContextProvider', () => {
       const alert = screen.queryByRole('alert');
       expect(alert).toBeInTheDocument();
       expect(alert?.textContent).toBe('Could not resend OTP.');
+    });
+
+    fetchSpy.mockRestore();
+  });
+
+  it(`makes a request to /api/resend-otp-to-email when resendOTP() is called and
+  throws an error with the response "Too many requests. Please try again later." 
+  if the status of the response is 429.`, async () => {
+    const fetchSpy = jest
+      .spyOn(global, 'fetch')
+      .mockResolvedValueOnce(new Response(null, { status: 429 }));
+
+    function ResendOTP() {
+      const { resendOTP } = useContextSafely(UserContext, 'ResendOTP');
+      const { showAlert } = useContextSafely(AlertsContext, 'ResendOTP');
+
+      return (
+        <button
+          onClick={async () => {
+            try {
+              await resendOTP();
+            } catch (e) {
+              showAlert(isErrorWithMessage(e) ? e.message : '', 'error');
+            }
+          }}
+        >
+          Resend OTP
+        </button>
+      );
+    }
+
+    render(
+      <AlertsContextProvider>
+        <ClientSideUserContextProvider
+          user={null}
+          invitedBy={null}
+          emailForSignIn="user@example.com"
+        >
+          <ResendOTP />
+        </ClientSideUserContextProvider>
+      </AlertsContextProvider>,
+    );
+
+    await user.click(screen.getByText('Resend OTP'));
+
+    await waitFor(() => {
+      const alert = screen.queryByRole('alert');
+      expect(alert).toBeInTheDocument();
+      expect(alert?.textContent).toBe(
+        'Too many requests. Please try again later.',
+      );
     });
 
     fetchSpy.mockRestore();
@@ -525,6 +690,57 @@ describe('ClientSideUserContextProvider', () => {
       const alert = screen.queryByRole('alert');
       expect(alert).toBeInTheDocument();
       expect(alert?.textContent).toBe('Error signing in.');
+    });
+
+    fetchSpy.mockRestore();
+  });
+
+  it(`makes a request to /api/signin-with-otp when signInWithOTP() is called,
+  and throws an error with the message "Too many requests. Please try again later." 
+  if the status of the response was 429.`, async () => {
+    const fetchSpy = jest
+      .spyOn(global, 'fetch')
+      .mockResolvedValueOnce(new Response(null, { status: 429 }));
+
+    function SignInWithOTP() {
+      const { signInWithOTP } = useContextSafely(UserContext, 'SignInWithOTP');
+      const { showAlert } = useContextSafely(AlertsContext, 'SignInWithOTP');
+
+      return (
+        <button
+          onClick={async () => {
+            try {
+              await signInWithOTP({ otp: '123456' });
+            } catch (e) {
+              showAlert(isErrorWithMessage(e) ? e.message : '', 'error');
+            }
+          }}
+        >
+          Sign in
+        </button>
+      );
+    }
+
+    render(
+      <AlertsContextProvider>
+        <ClientSideUserContextProvider
+          user={null}
+          invitedBy={null}
+          emailForSignIn="user@example.com"
+        >
+          <SignInWithOTP />
+        </ClientSideUserContextProvider>
+      </AlertsContextProvider>,
+    );
+
+    await user.click(screen.getByText('Sign in'));
+
+    await waitFor(() => {
+      const alert = screen.queryByRole('alert');
+      expect(alert).toBeInTheDocument();
+      expect(alert?.textContent).toBe(
+        'Too many requests. Please try again later.',
+      );
     });
 
     fetchSpy.mockRestore();
