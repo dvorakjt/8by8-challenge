@@ -114,7 +114,7 @@ export const Share = isSignedIn(function Share({
     <PageContainer>
       <div className={styles.main_content}>
         <button className={styles.back_icon} onClick={() => router.back()}>
-          <Image src={backArrow} alt="Back arrow" />
+          <Image src={backArrow} alt="Back arrow" priority />
           Back
         </button>
         <h1 className={styles.header}>Invite friends</h1>
@@ -122,13 +122,14 @@ export const Share = isSignedIn(function Share({
           className={styles.calendar_image}
           src={calendarImage}
           alt="calendar"
+          priority
         />
         <p className={styles.paragraph}>{paragraphText}</p>
       </div>
       <div className={styles.buttons_container}>
         <div className={styles.copy_button_container}>
           <button className={styles.button} onClick={copyLink}>
-            <Image src={copyLinkIcon} alt="Copy link" />
+            <Image src={copyLinkIcon} alt="Copy link" priority />
             Copy link
           </button>
           <div className={styles.toast_container}>
@@ -137,12 +138,12 @@ export const Share = isSignedIn(function Share({
         </div>
         {showShareButton && (
           <button onClick={share} className={styles.button}>
-            <Image src={socialShareIcon} alt="Social share icon" />
+            <Image src={socialShareIcon} alt="Social share icon" priority />
             Share
           </button>
         )}
         <button className={styles.button} onClick={openModal}>
-          <Image src={imagesIcon} alt="Images icon" />
+          <Image src={imagesIcon} alt="Images icon" priority />
           Images for posts
         </button>
         <Modal
