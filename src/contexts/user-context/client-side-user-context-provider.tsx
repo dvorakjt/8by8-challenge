@@ -13,7 +13,6 @@ import { clearInviteCode } from './clear-invite-code-cookie';
 import { clearAllPersistentFormElements, ValueOf } from 'fully-formed';
 import { VoterRegistrationForm } from '@/app/register/voter-registration-form';
 import { UserType } from '@/model/enums/user-type';
-import { RestartChallengeModal } from './restart-challenge-modal';
 import type { User } from '@/model/types/user';
 import type { ChallengerData } from '@/model/types/challenger-data';
 import type { RealtimeChannel } from '@supabase/supabase-js';
@@ -311,7 +310,6 @@ export function ClientSideUserContextProvider(
       }}
     >
       {props.children}
-      <RestartChallengeModal />
     </UserContext.Provider>
   );
 }
