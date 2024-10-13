@@ -1,3 +1,5 @@
+@use '../styles/partials' as *;
+
 .container {
   height: 100%;
   width: 100%;
@@ -5,4 +7,9 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
+}
+
+.heading {
+  text-align: center;
+  margin-top: $spacing-sm;
 }
