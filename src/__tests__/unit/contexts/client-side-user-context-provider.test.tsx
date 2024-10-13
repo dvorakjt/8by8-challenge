@@ -24,12 +24,12 @@ import { Subject } from 'rxjs';
 import ProgressPage from '@/app/progress/page';
 import { mockDialogMethods } from '@/utils/test/mock-dialog-methods';
 import { VoterRegistrationForm } from '@/app/register/voter-registration-form';
+import { isErrorWithMessage } from '@/utils/shared/is-error-with-message';
+import { calculateDaysRemaining } from '@/app/progress/calculate-days-remaining';
 import type { User } from '@/model/types/user';
 import type { AppRouterInstance } from 'next/dist/shared/lib/app-router-context.shared-runtime';
 import type { Avatar } from '@/model/types/avatar';
 import type { ValueOf } from 'fully-formed';
-import { isErrorWithMessage } from '@/utils/shared/is-error-with-message';
-import { calculateDaysRemaining } from '@/app/progress/calculate-days-remaining';
 
 jest.mock('next/navigation', () => ({
   useRouter: jest.fn(),
