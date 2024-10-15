@@ -1,17 +1,4 @@
-const cspHeader = `
-    default-src 'self';
-    script-src 'self' 'unsafe-inline' ${process.env.NODE_ENV === 'production' ? '' : "'unsafe-eval'"} https://register.rockthevote.com;
-    frame-src https://register.rockthevote.com;
-    style-src 'self' 'unsafe-inline';
-    img-src 'self' blob: data:;
-    font-src 'self';
-    object-src 'none';
-    base-uri 'self';
-    form-action 'self';
-    frame-ancestors 'none';
-    block-all-mixed-content;
-    upgrade-insecure-requests;
-`;
+import { createCSP } from './scripts/create-content-security-policy.mjs';
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
@@ -30,11 +17,11 @@ const nextConfig = {
             key: 'cache-control',
             value: 'public, max-age=31536000, immutable',
           },
-          {
-            key: 'Content-Security-Policy',
-            value: cspHeader.replace(/\n/g, ''),
-          },
         ],
+      },
+      {
+        source: '/(.*)',
+        headers: [createCSP()],
       },
     ];
   },
