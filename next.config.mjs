@@ -1,3 +1,5 @@
+import { createCSP } from './scripts/create-content-security-policy.mjs';
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   /*
@@ -16,6 +18,10 @@ const nextConfig = {
             value: 'public, max-age=31536000, immutable',
           },
         ],
+      },
+      {
+        source: '/(.*)',
+        headers: [createCSP()],
       },
     ];
   },
