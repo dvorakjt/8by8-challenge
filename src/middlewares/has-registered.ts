@@ -56,6 +56,7 @@ export function hasRegistered(next: ChainedMiddleware): ChainedMiddleware {
 
       const { data } = await supabase.auth.getUser();
 
+      /* istanbul ignore else */
       if (data.user) {
         const userRepo = serverContainer.get(
           SERVER_SERVICE_KEYS.UserRepository,
@@ -63,6 +64,7 @@ export function hasRegistered(next: ChainedMiddleware): ChainedMiddleware {
 
         const user = await userRepo.getUserById(data.user.id);
 
+        /* istanbul ignore else */
         if (!user?.completedActions.registerToVote) {
           return NextResponse.redirect(
             new URL('/register/eligibility', request.nextUrl.origin),

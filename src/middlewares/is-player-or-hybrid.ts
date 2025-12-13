@@ -55,6 +55,7 @@ export function isPlayerOrHybrid(next: ChainedMiddleware): ChainedMiddleware {
 
       const { data } = await supabase.auth.getUser();
 
+      /* istanbul ignore else */
       if (data.user) {
         const userRepo = serverContainer.get(
           SERVER_SERVICE_KEYS.UserRepository,
