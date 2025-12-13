@@ -29,7 +29,12 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
+        with:
+          version: latest
       - uses: supabase/setup-cli@v1
         with:
           version: latest
-      - run: node -v
+      - run: npm ci
+      - run: npm run supabase-test:start
+      - run: npm run kv:start
+      - run: npm run test:ci
