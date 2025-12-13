@@ -85,9 +85,6 @@
   },
   "overrides": {
     "@upstash/redis": "~1.34.3",
-    "eslint-config-next": {
-      "glob": "^10.5.0"
-    },
     "webpack": "5.101.2"
   }
 }
